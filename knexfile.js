@@ -12,10 +12,10 @@ module.exports = {
 			database: process.env.DB_DATABASE || 'kkp_asta',
 		},
 		migrations: {
-			directory: './db/migrations',
+			directory: './database/migrations',
 		},
 		seeds: {
-			directory: './db/seeds',
+			directory: './database/seeds',
 		},
 	},
 
@@ -26,10 +26,10 @@ module.exports = {
 			ssl: {rejectUnauthorized: false},
 		},
 		migrations: {
-			directory: './db/migrations',
+			directory: './database/migrations',
 		},
 		seeds: {
-			directory: './db/seeds',
+			directory: './database/seeds',
 		},
 	},
 };
