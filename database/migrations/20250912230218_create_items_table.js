@@ -1,7 +1,7 @@
 /**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
+     * @param { import("knex").Knex } knex
+     * @returns { Promise<void> }
+     */
 exports.up = async function(knex) {
 	const exists = await knex.schema.hasTable('items');
 	if (!exists) {
@@ -16,9 +16,9 @@ exports.up = async function(knex) {
 };
 
 /**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
+     * @param { import("knex").Knex } knex
+     * @returns { Promise<void> }
+     */
 exports.down = function(knex) {
 	return knex.schema.dropTableIfExists('items');
 };
