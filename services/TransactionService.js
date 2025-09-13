@@ -6,15 +6,14 @@ const knex = require('../config/database');
 const TransactionService = {
 	// Fungsi untuk mendapatkan semua data
 	getAll: async filters => {
-		const query = kenx('transactions')
+		const query = knex('transactions')
 			.select('transactions.*', 'users.full_name as user__full_name')
-			.join('users', 'transactions.user_id', '=', 'user.id');
-
+			.join('users', 'transactions.user_id', '=', 'users.id');
 		if (filters.start_date && filters.end_date) {
 			query.whereBetween('transactions.created_at', [filters.start_date, filters.end_date]);
 		}
 
-		query.orderBy('transactions.created_at', desc);
+		query.orderBy('transactions.created_at', 'desc');
 
 		return query;
 	},
