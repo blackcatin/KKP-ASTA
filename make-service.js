@@ -23,33 +23,33 @@ const template = `
 // ${name}Service.js
 // Generated automatically
 
-const db = require('../db');
+const knex = require('../config/database');
 
 const ${name}Service = {
   // Fungsi untuk mendapatkan semua data
   getAll: async () => {
-    // return db('${name.toLowerCase()}').select('*');
-    // Contoh join: return db('tabel_utama').join('tabel_lain');
+    // return knex('${name.toLowerCase()}').select('*');
+    // Contoh join: return knex('tabel_utama').join('tabel_lain');
   },
 
   // Fungsi untuk mendapatkan data berdasarkan ID
   getById: async (id) => {
-    // return db('${name.toLowerCase()}').where({ id }).first();
+    // return knex('${name.toLowerCase()}').where({ id }).first();
   },
 
   // Fungsi untuk membuat data baru
   create: async (data) => {
-    // return db('${name.toLowerCase()}').insert(data).returning('*');
+    // return knex('${name.toLowerCase()}').insert(data).returning('*');
   },
 
   // Fungsi untuk memperbarui data
   update: async (id, data) => {
-    // return db('${name.toLowerCase()}').where({ id }).update(data);
+    // return knex('${name.toLowerCase()}').where({ id }).update(data);
   },
 
   // Fungsi untuk menghapus data
   del: async (id) => {
-    // return db('${name.toLowerCase()}').where({ id }).del();
+    // return knex('${name.toLowerCase()}').where({ id }).del();
   }
 };
 

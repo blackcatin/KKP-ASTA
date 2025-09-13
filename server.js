@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const database = require('./config/database');
-const userController = require('./controllers/UserController');
+const UserController = require('./controllers/UserController');
+const TransactionController = require('./controllers/TransactionController');
 
 // Inisialisasi Express
 const app = express();
@@ -17,8 +18,10 @@ app.get('/', (req, res) => {
 	res.send('Backend Server is running.');
 });
 
-app.post('/api/register', userController.register);
-app.post('/api/login', userController.login);
+app.post('/api/register', UserController.register);
+app.post('/api/login', UserController.login);
+
+app.use('/api/transactions', TransactionController);
 
 // Run server
 app.listen(PORT, () => {

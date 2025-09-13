@@ -1,7 +1,6 @@
 // UserController.js
-const knex = require('../config/database');
 const bcrypt = require('bcrypt');
-const cryptRounds = 10;
+const UserService = require('../services/UserService');
 
 exports.register = async (req, res) => {
 	const {full_name, email, password, role} = req.body;
@@ -10,20 +9,13 @@ exports.register = async (req, res) => {
 	}
 
 	try {
-		const existingUser = await knex('users').where({email}).first();
+		const existingUser = await UserService.findUserByEmail(email);
 		if (existingUser) {
 			return res.status(409).json({message: 'Email sudah terdaftar'});
 		}
 
-		const hashedPassword = await bcrypt.hash(password, cryptRounds);
-
-		await knex('users').insert({
-			full_name,
-			email,
-			password_hash: hashedPassword,
-			role,
-		});
-		res.status(201).json({message: 'Registrasi berhasil'});
+		const newUser = await UserService.createUser(full_name, email, password, role);
+		res.status(201).json({message: 'Registrasi berhasil', user: newUser});
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({message: 'Error server'});
@@ -38,7 +30,7 @@ exports.login = async (req, res) => {
 	}
 
 	try {
-		const user = await knex('users').where({email}).first();
+		const user = await UserService.findUserByEmail;
 		if (!user) {
 			return res.status(400).json({message: 'Pengguna tidak ditemukan'});
 		}
