@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const database = require('./config/database');
 const UserController = require('./controllers/UserController');
 const TransactionController = require('./controllers/TransactionController');
+const ItemController = require('./controllers/ItemController');
 
 // Inisialisasi Express
 const app = express();
@@ -22,6 +23,7 @@ app.post('/api/register', UserController.register);
 app.post('/api/login', UserController.login);
 
 app.use('/api/transactions', TransactionController);
+app.use('/api/items', ItemController);
 
 // Run server
 app.listen(PORT, () => {
