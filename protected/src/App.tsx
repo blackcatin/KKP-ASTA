@@ -1,14 +1,18 @@
-import { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import AuthPage from './components/auth/AuthPage';
+import { BrowserRouter as Router, Routes, Route, BrowserRouter } from 'react-router-dom';
+import Login from './components/Login'
+import Layout from './components/Layout';
+import StaffPage from './components/StaffPage';
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<AuthPage />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/dashboard" element={<Layout />}>
+          <Route path="staff" element={<StaffPage />} />
+        </Route>
       </Routes>
-    </Router>
+    </BrowserRouter >
   );
 }
 
