@@ -6,7 +6,7 @@ const UserController = require('./controllers/UserController');
 const TransactionController = require('./controllers/TransactionController');
 const ItemController = require('./controllers/ItemController');
 const ReportController = require('./controllers/ReportController');
-
+const authMiddleware = require('./middleware/auth');
 // Inisialisasi Express
 const app = express();
 const PORT = 3000;
@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
 	res.send('Backend Server is running.');
 });
 
-app.post('/api/register', UserController.register);
+app.post('/api/users', UserController.createUser);
 app.post('/api/login', UserController.login);
 
 app.use('/api/transactions', TransactionController);
