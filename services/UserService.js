@@ -21,6 +21,14 @@ const UserService = {
 	findUserByEmail: async email => {
 		return knex('users').where({email}).first();
 	},
+	getAllUsers: async role => {
+		let query = knex('users').select('id', 'full_name', 'email', 'role');
+		if (role) {
+			query = query.where('role', role);
+		}
+
+		return query;
+	},
 };
 
 module.exports = UserService;

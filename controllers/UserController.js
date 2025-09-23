@@ -49,6 +49,20 @@ exports.login = async (req, res) => {
 	}
 };
 
+exports.getAllUsers = [
+	// authMiddleware.authMiddleware,
+	// authMiddleware.authorizeRole('owner'),
+	async (req, res) => {
+		try {
+			const users = await UserService.getAllUsers(req.query.role);
+			res.status(200).json({users});
+		} catch (error) {
+			console.error(error);
+			res.status(500).json({message: 'Server error'});
+		}
+	},
+];
+
 exports.index = async (req, res) => {
 	res.send('User index');
 };
