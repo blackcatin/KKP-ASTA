@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Logo from "../assets/Image/Logo.jpg";
 import IllustrationImage from "../assets/Image/illustrations.png";
 
@@ -8,13 +9,15 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const nav = useNavigate();
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
         try {
-            const response = await fetch("http://localhost:3000/api/login", {
+            const response = await fetch("http://localhost:3000/api/users/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -23,9 +26,11 @@ export default function Login() {
             });
 
             const data = await response.json();
-
+            console.log(data);
             if (response.ok) {
                 console.log("Login berhasil:", data.message, data.user);
+
+                nav('/dashboard');
             } else {
                 setError(data.message || "Login gagal, silakan coba lagi.");
             }

@@ -19,11 +19,8 @@ app.use(cors());
 app.get('/', (req, res) => {
 	res.send('Backend Server is running.');
 });
-app.post('/api/login', UserController.login);
 
-app.post('/api/users', UserController.createUser);
-app.get('/api/users', UserController.getAllUsers);
-
+app.use('/api/users', UserController);
 app.use('/api/transactions', TransactionController);
 app.use('/api/items', ItemController);
 app.use('/api/reports', ReportController);

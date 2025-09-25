@@ -21,6 +21,7 @@ const UserService = {
 	findUserByEmail: async email => {
 		return knex('users').where({email}).first();
 	},
+
 	getAllUsers: async role => {
 		let query = knex('users').select('id', 'full_name', 'email', 'role');
 		if (role) {
@@ -28,6 +29,28 @@ const UserService = {
 		}
 
 		return query;
+	},
+
+	deleteUser: async id => {
+		return knex('users').where({id}).del();
+	},
+
+	updateUser: async (id, data) => {
+		const allowedFields = ['full_name', 'email', 'role'];
+		// filter editable
+		const updateData = Object.keys(data)
+			.filter(key => allowedFields.includes(key))
+			.reduce((obj, key) => {
+				obj[key] = data[key];
+				return obj;
+			}, {});
+
+		const [updatedUser] = await knex('users')
+			.where({id})
+			.update(updateData)
+			.returning(['id', 'full_name', 'email', 'role']);
+
+		return updatedUser;
 	},
 };
 

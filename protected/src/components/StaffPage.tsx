@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Modal from "./Modal";
 
 interface User {
     id: number;
@@ -11,6 +12,8 @@ export default function StaffPage() {
     const [staffList, setStaffList] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [editModal, setEditModal] = useState(false);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
 
     useEffect(() => {
         const fetchStaff = async () => {
@@ -34,6 +37,36 @@ export default function StaffPage() {
         }
         fetchStaff();
     }, []);
+
+    const openEditModal = (user: User) => {
+        setCurrentUser(user);
+        setEditModal(true);
+    }
+
+    const closeEditModal = () => {
+        setEditModal(false);
+        setCurrentUser(null);
+    }
+
+    const handleDelete = async (userId: number) => {
+        try {
+            const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
+                method: "DELETE"
+            });
+
+            if (response.ok) {
+                setStaffList(staffList.filter(user => user.id !== userId));
+                console.log(`Pengguna dengan ID ${userId} berhasil dihapus`);
+            } else {
+                const errorData = await response.json();
+                console.error("Gagal menghapus user:", errorData.message);
+                setError(errorData.message);
+            }
+        } catch (error) {
+            console.error("Gagal menghapus user", error);
+            setError('Server error');
+        }
+    }
 
     if (loading) {
         return <div>Loading...</div>
@@ -74,14 +107,28 @@ export default function StaffPage() {
                             <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{user.role}</td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                                <button className="text-blue-600 hover:text-blue-900">Edit</button>
-                                <button className="text-red-600 hover:text-red-900">Hapus</button>
+                                <button
+                                    className="text-blue-600 hover:text-blue-900"
+                                    onClick={() => openEditModal(user)}>Edit</button>
+                                <button
+                                    className="text-red-600 hover:text-red-900"
+                                    onClick={() => handleDelete(user.id)}> Hapus</button>
                             </td>
                         </tr>
                     ))}
-
                 </tbody>
             </table>
-        </div>
+            <Modal
+                isOpen={editModal}
+                onClose={closeEditModal}
+                title={`Edit akun: ${currentUser?.full_name}`}
+            >
+                {
+                    currentUser && (
+                        <p>sdf</p>
+                    )
+                }
+            </Modal>
+        </div >
     )
 }
