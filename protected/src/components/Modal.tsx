@@ -13,29 +13,29 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex justify-center overflow-x-hidden overflow-y-auto bg-center outline-none items focus:outline-none">
-            <div className="relative w-auto max-w-3xl mx-auto my-6">
-                {/* kontnen */}
-                <div className="relative flex flex-col w-full bg-white border-0 rounded-lg outline-none focus:outline-none">
-                    {/* header */}
-                    <div className="flex items-start justify-between p-5 border-b border-gray-500 border-solid rounded-t-md">
-                        <h3 className="text-2xl font-semibold">{title}</h3>
-                        <button
-                            className="float-right p-1 ml-auto text-3xl font-semibold leading-none text-black bg-transparent border-0 outline-none opacity-50 focus:outline-none"
-                            onClick={onClose}
-                        >
-                            <span className="block w-6 h-6 text-2xl text-black">X</span>
-                        </button>
-                    </div>
-                    {/* body */}
-                    <div className="relative flex-auto p-6">
-                        {children}
-                    </div>
-                    {/* overlay */}
-                    <div className="fixed inset-0 z-40 bg-black opacity-25" onClick={onClose}></div>
-                </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+            {/* overlay */}
+            <div className="fixed inset-0 z-40 bg-black opacity-25" onClick={onClose}></div>
 
+            {/* kontnen */}
+            <div onClick={e => e.stopPropagation()}
+                className="relative z-50 flex flex-col w-full max-w-3xl bg-white border-0 rounded-lg">
+                {/* header */}
+                <div className="flex items-start justify-between p-5 border-b border-gray-500 border-solid rounded-t-md">
+                    <h3 className="text-2xl font-semibold">{title}</h3>
+                    <button
+                        className="text-gray-500 hover:text-black"
+                        onClick={onClose}
+                    >
+                        <span className="block w-6 h-6 text-2xl font-bold text-red-600">X</span>
+                    </button>
+                </div>
+                {/* body */}
+                <div className="p-6">
+                    {children}
+                </div>
             </div>
+
         </div>
     )
 }

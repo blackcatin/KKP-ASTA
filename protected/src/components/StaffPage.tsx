@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Modal from "./Modal";
+import AddStaffForm from "./AddStaffForm";
 
 interface User {
     id: number;
@@ -14,29 +15,38 @@ export default function StaffPage() {
     const [error, setError] = useState<string | null>(null);
     const [editModal, setEditModal] = useState(false);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [modalOpen, setModalOpen] = useState(false);
+
+    const fetchStaff = async () => {
+        try {
+            const response = await fetch("http://localhost:3000/api/users?role=staff");
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch staff data");
+            }
+            const data = await response.json();
+            setStaffList(data.users);
+            setError(null);
+        } catch (error) {
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError("Error mengambil data staff");
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
 
     useEffect(() => {
-        const fetchStaff = async () => {
-            try {
-                const response = await fetch("http://localhost:3000/api/users?role=staff");
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch staff data");
-                }
-                const data = await response.json();
-                setStaffList(data.users);
-            } catch (error) {
-                if (error instanceof Error) {
-                    setError(error.message);
-                } else {
-                    setError("Error mengambil data staff");
-                }
-            } finally {
-                setLoading(false);
-            }
-        }
+        setLoading(true);
         fetchStaff();
     }, []);
+
+    const refreshStaffList = () => {
+        setModalOpen(false);
+        fetchStaff();
+    }
 
     const openEditModal = (user: User) => {
         setCurrentUser(user);
@@ -47,6 +57,15 @@ export default function StaffPage() {
         setEditModal(false);
         setCurrentUser(null);
     }
+
+    const openModal = () => {
+        setModalOpen(true);
+    }
+
+    const closeModal = () => {
+        setModalOpen(false);
+    }
+
 
     const handleDelete = async (userId: number) => {
         try {
@@ -83,7 +102,9 @@ export default function StaffPage() {
             <div className="p-6 bg-white rounded-lg shadow">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold">Daftar staff</h3>
-                    <button className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700">
+                    <button
+                        onClick={openModal}
+                        className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700">
                         Tambah akun staff
                     </button>
                 </div>
@@ -118,6 +139,11 @@ export default function StaffPage() {
                     ))}
                 </tbody>
             </table>
+
+            <Modal isOpen={modalOpen} onClose={closeModal} title="Tambah akun staff">
+                <AddStaffForm onSuccess={refreshStaffList} onCancel={closeModal} />
+            </Modal>
+
             <Modal
                 isOpen={editModal}
                 onClose={closeEditModal}
