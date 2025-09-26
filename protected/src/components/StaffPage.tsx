@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Modal from "./Modal";
 import AddStaffForm from "./AddStaffForm";
+import EditStaffForm from "./EditStaffForm";
 
 interface User {
     id: number;
@@ -43,8 +44,14 @@ export default function StaffPage() {
         fetchStaff();
     }, []);
 
-    const refreshStaffList = () => {
+    const handleAddSuccess = () => {
         setModalOpen(false);
+        fetchStaff();
+    }
+
+    const handleEditSuccess = () => {
+        setEditModal(false);
+        setCurrentUser(null);
         fetchStaff();
     }
 
@@ -97,7 +104,7 @@ export default function StaffPage() {
 
     return (
         <div>
-            <h2 className="mb-3 text-2xl font-bold">Kelola akun pengguna/staff</h2>
+            <h2 className="mb-3 text-2xl font-bold">Kelola Akun Pengguna</h2>
 
             <div className="p-6 bg-white rounded-lg shadow">
                 <div className="flex items-center justify-between mb-4">
@@ -127,13 +134,13 @@ export default function StaffPage() {
                             <td className="px-6 py-4 whitespace-nowrap">{user.full_name}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{user.role}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">
+                            <td className="px-6 py-4 whitespace-nowrap space-x-2.5">
                                 <button
-                                    className="text-blue-600 hover:text-blue-900"
+                                    className="px-3 text-gray-200 bg-blue-600 rounded-md hover:bg-blue-900"
                                     onClick={() => openEditModal(user)}>Edit</button>
                                 <button
-                                    className="text-red-600 hover:text-red-900"
-                                    onClick={() => handleDelete(user.id)}> Hapus</button>
+                                    className="px-3 text-gray-200 bg-red-500 rounded-md hover:bg-red-900"
+                                    onClick={() => handleDelete(user.id)}>Hapus</button>
                             </td>
                         </tr>
                     ))}
@@ -141,17 +148,17 @@ export default function StaffPage() {
             </table>
 
             <Modal isOpen={modalOpen} onClose={closeModal} title="Tambah akun staff">
-                <AddStaffForm onSuccess={refreshStaffList} onCancel={closeModal} />
+                <AddStaffForm onSuccess={handleAddSuccess} onCancel={closeModal} />
             </Modal>
 
-            <Modal
-                isOpen={editModal}
-                onClose={closeEditModal}
-                title={`Edit akun: ${currentUser?.full_name}`}
-            >
+            <Modal isOpen={editModal} onClose={closeEditModal} title={`Edit akun: ${currentUser?.full_name}`}>
                 {
                     currentUser && (
-                        <p>sdf</p>
+                        <EditStaffForm
+                            currentUser={currentUser}
+                            onSuccess={handleEditSuccess}
+                            onCancel={closeEditModal}
+                        />
                     )
                 }
             </Modal>

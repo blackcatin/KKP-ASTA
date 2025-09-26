@@ -1,21 +1,26 @@
 import { Link, Outlet } from "react-router-dom";
 
-export default function dashboard() {
+export default function Dashboard() {
     return (
-        <div className="flex">
-            <div className="w-64 h-screen p-4 text-white bg-green-600">
-                <nav>
-                    <Link to="/dashboard" className="block py-2"></Link>
-                    <Link to="/dashboard/staff" className="block py-2">Staff</Link>
-                    <Link to="/dashboard/transactions" className="block py-2">Transaksi</Link>
-                    <Link to="/dashboard/stocks" className="block py-2">Stok</Link>
-                    <Link to="/dashboard/report" className="block py-2">Laporan</Link>
+        <div className="flex min-h-screen">
+
+            <div className="flex flex-col w-64 p-4 text-white bg-green-700">
+                <div className="flex items-center mb-6">
+                    <h1 className="text-2xl font-bold">Menu</h1>
+                </div>
+                <nav className="flex-1 space-y-2">
+                    <Link to="/dashboard/staff" className="block p-2 font-semibold">Staff</Link>
+                    <Link to="/dashboard/transaction" className="block p-2 font-semibold">Transaksi</Link>
+                    <Link to="/dashboard/stocks" className="block p-2 font-semibold">Stok</Link>
+                    <Link to="/dashboard/reports" className="block p-2 font-semibold">Laporan</Link>
+                    <Link to="/logout" className="bottom-0 block p-2 font-semibold">Log Out</Link>
                 </nav>
+                <div className="mt-auto"></div>
             </div>
 
-            <div className="flex-1 p-8">
-
+            <div className="flex-1 p-8 bg-gray-100">
+                <Outlet />
             </div>
-        </div >
+        </div>
     )
 }

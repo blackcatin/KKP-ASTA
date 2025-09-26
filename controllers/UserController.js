@@ -102,7 +102,7 @@ router.put(
 		}
 
 		try {
-			const [updatedUser] = await UserService.updateUser(id, updateData);
+			const updatedUser = await UserService.updateUser(id, updateData);
 
 			if (!updatedUser) {
 				return res.status(404).json({message: 'Pengguna tidak ditemukan'});
@@ -113,7 +113,8 @@ router.put(
 				user: updatedUser,
 			});
 		} catch (error) {
-			return res.status(500).json({message: 'Server error'});
+			console.error('Update user error:', error);
+			return res.status(500).json({message: 'Server error', error: error.message});
 		}
 	}
 );
