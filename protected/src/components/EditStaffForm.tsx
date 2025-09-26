@@ -88,11 +88,11 @@ export default function EditStaffForm({ currentUser, onSuccess, onCancel }: Edit
             </div>
 
             {/* action */}
-            <div className="flex justify-end pt-2 mt-4 border-t space-x2">
-                <button type="button" onClick={onCancel} className="px-4 text-gray-700 rounded-lg bg-amber-700 hover:bg-amber-600">
+            <div className="flex justify-end pt-2 mt-4 space-x-2 border-t">
+                <button type="button" onClick={onCancel} className="px-3 py-1 text-gray-700 rounded-lg bg-amber-700 hover:bg-amber-600">
                     Batal
                 </button>
-                <button type="submit" disabled={loading} className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-400 disabled:opacity-50">
+                <button type="submit" disabled={loading} className="px-3 py-1 text-white bg-green-600 rounded-lg hover:bg-green-400 disabled:opacity-50">
                     {loading ? 'Menyimpan...' : 'Simpan akun'}
                 </button>
             </div>

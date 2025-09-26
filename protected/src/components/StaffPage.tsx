@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Modal from "./Modal";
 import AddStaffForm from "./AddStaffForm";
 import EditStaffForm from "./EditStaffForm";
+import DeleteStaff from "./DeleteStaff";
 
 interface User {
     id: number;
@@ -17,6 +18,7 @@ export default function StaffPage() {
     const [editModal, setEditModal] = useState(false);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
+    const [deleteModal, setDeleteModal] = useState(false);
 
     const fetchStaff = async () => {
         try {
@@ -55,6 +57,16 @@ export default function StaffPage() {
         fetchStaff();
     }
 
+    const openDeleteModal = (user: User) => {
+        setCurrentUser(user);
+        setDeleteModal(true);
+    }
+
+    const closeDeleteModal = () => {
+        setDeleteModal(false);
+        setCurrentUser(null);
+    }
+
     const openEditModal = (user: User) => {
         setCurrentUser(user);
         setEditModal(true);
@@ -73,24 +85,30 @@ export default function StaffPage() {
         setModalOpen(false);
     }
 
+    const executeDelete = async () => {
+        if (!currentUser) return;
 
-    const handleDelete = async (userId: number) => {
+        const userId = currentUser.id;
+
         try {
             const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
                 method: "DELETE"
             });
 
             if (response.ok) {
+                closeDeleteModal();
                 setStaffList(staffList.filter(user => user.id !== userId));
                 console.log(`Pengguna dengan ID ${userId} berhasil dihapus`);
             } else {
                 const errorData = await response.json();
                 console.error("Gagal menghapus user:", errorData.message);
                 setError(errorData.message);
+                throw new Error(errorData.message); // lempar errror agar modal delete tahu
             }
         } catch (error) {
             console.error("Gagal menghapus user", error);
             setError('Server error');
+            throw error;
         }
     }
 
@@ -121,7 +139,7 @@ export default function StaffPage() {
                 <thead className="bg-gray-50">
                     <tr>
                         <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase" >ID User</th>
-                        <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase" >Nama</th>
+                        <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase" >Nama Pengguna</th>
                         <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase" >Email</th>
                         <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase" >Role</th>
                         <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase" >Aksi</th>
@@ -136,11 +154,11 @@ export default function StaffPage() {
                             <td className="px-6 py-4 whitespace-nowrap">{user.role}</td>
                             <td className="px-6 py-4 whitespace-nowrap space-x-2.5">
                                 <button
-                                    className="px-3 text-gray-200 bg-blue-600 rounded-md hover:bg-blue-900"
+                                    className="px-3 py-1 text-gray-200 bg-blue-600 rounded-md hover:bg-blue-900"
                                     onClick={() => openEditModal(user)}>Edit</button>
                                 <button
-                                    className="px-3 text-gray-200 bg-red-500 rounded-md hover:bg-red-900"
-                                    onClick={() => handleDelete(user.id)}>Hapus</button>
+                                    className="px-3 py-1 text-gray-200 bg-red-500 rounded-md hover:bg-red-900"
+                                    onClick={() => openDeleteModal(user)}>Hapus</button>
                             </td>
                         </tr>
                     ))}
@@ -158,6 +176,18 @@ export default function StaffPage() {
                             currentUser={currentUser}
                             onSuccess={handleEditSuccess}
                             onCancel={closeEditModal}
+                        />
+                    )
+                }
+            </Modal>
+
+            <Modal isOpen={deleteModal} onClose={closeDeleteModal} title="Konfirmasi Penghapusan">
+                {
+                    currentUser && (
+                        <DeleteStaff
+                            user={currentUser}
+                            onDelete={executeDelete}
+                            onCancel={closeDeleteModal}
                         />
                     )
                 }
