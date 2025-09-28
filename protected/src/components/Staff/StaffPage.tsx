@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Modal from "./Modal";
+import Modal from "../Layout/Modal";
 import AddStaffForm from "./AddStaffForm";
 import EditStaffForm from "./EditStaffForm";
 import DeleteStaff from "./DeleteStaff";
@@ -25,7 +25,7 @@ export default function StaffPage() {
             const response = await fetch("http://localhost:3000/api/users?role=staff");
 
             if (!response.ok) {
-                throw new Error("Failed to fetch staff data");
+                throw new Error("Gagal menghubungkan dengan data staff");
             }
             const data = await response.json();
             setStaffList(data.users);

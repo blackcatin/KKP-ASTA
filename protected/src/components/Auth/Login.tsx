@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Logo from "../assets/Image/Logo.jpg";
-import IllustrationImage from "../assets/Image/illustrations.png";
+import Logo from "../../assets/Image/Logo.jpg";
+import IllustrationImage from "../../assets/Image/illustrations.png";
 
 export default function Login() {
     const [email, setEmail] = useState("");

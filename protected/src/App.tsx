@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, BrowserRouter } from 'react-router-dom';
-import Login from './components/Login'
-import Layout from './components/Layout';
-import StaffPage from './components/StaffPage';
+import Login from './components/Auth/Login'
+import Layout from './components/Layout/Layout';
+import StaffPage from './components/Staff/StaffPage';
+import TransactionPage from './components/Transaction/TransactionPage';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Layout />}>
           <Route path="staff" element={<StaffPage />} />
+          <Route path="transaction" element={<TransactionPage />} />
         </Route>
       </Routes>
     </BrowserRouter >
