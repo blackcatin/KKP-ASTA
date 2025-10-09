@@ -86,7 +86,7 @@ export default function TransactionPage() {
 
         const user_id = 1;
         if (!description || !user_id) {
-            setError('Keterangan daan Id pengguna harus diisi');
+            setError('Keterangan dan Id pengguna harus diisi');
             return;
         }
 
