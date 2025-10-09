@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Layout from "../Layout/Layout";
 
 // item yg akan dicatat
 interface TransactionItem {
@@ -50,6 +49,13 @@ export default function TransactionPage() {
         fetchMasterItems();
     }, []);
 
+    const calculateTotalAmount = () => {
+        if (transactionType !== 'penjualan' && transactionType !== 'pembelian') {
+            return amount || 0;
+        }
+        return amount || 0;
+    }
+
     const addItem = () => {
         setItems([...items, { itemId: null, quantity: 1 }]);
     }
@@ -77,6 +83,60 @@ export default function TransactionPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Data transaksi siap dikirim', { transactionType, description, amount, items });
+
+        const user_id = 1;
+        if (!description || !user_id) {
+            setError('Keterangan daan Id pengguna harus diisi');
+            return;
+        }
+
+        // prepare payload
+        const finalAmount = calculateTotalAmount();
+        const finalItems = (transactionType === 'penjualan' || transactionType === 'pembelian')
+            ? items.filter(items => items.itemId !== null) : [];
+
+        // item-based tapi ga milih, batalkkan
+        if ((transactionType === 'penjualan' || transactionType === 'pembelian') && finalItems.length === 0) {
+            setError('Harap tambahkan minimal 1 item');
+            return;
+        }
+
+        // isi payload
+        const payload = {
+            user_id: user_id,
+            transactionType: transactionType,
+            description: description,
+            amount: finalAmount,
+            items: finalItems,
+        }
+
+        try {
+            setLoading(true);
+            const response = await fetch('http://localhost:3000/api/transactions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Gagal mencatat transaksi');
+            }
+
+            alert('Transaksi berhasil dicatat!');
+            setItems([{ itemId: null, quantity: 1 }]);
+            setDescription('');
+            setAmount('');
+
+        } catch (error) {
+            if (error instanceof Error) {
+                setError(error.message || 'Server error');
+            }
+        } finally {
+            setLoading(false);
+        }
     }
 
     if (loading) return <div>Memuat data item</div>
@@ -140,13 +200,13 @@ export default function TransactionPage() {
                 )}
 
                 {/* biaya/jumlah (muncul jika tidak ada item atau biaya operasional) */}
-                {((transactionType !== 'penjualan' && transactionType !== 'pembelian') || (items.length === 0)) && (
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Jumlah (Rp)</label>
-                        <input type="number" value={amount} onChange={(e) => setAmount(parseInt(e.target.value))}
-                            className="block w-full px-3 py-1 mt-1 border rounded-md shadow-sm" placeholder="Contoh: 50000" />
-                    </div>
-                )}
+                {/* {((transactionType !== 'penjualan' && transactionType !== 'pembelian') || (items.length === 0)) && ( */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Jumlah Total (Rp)</label>
+                    <input type="number" value={amount} onChange={(e) => setAmount(parseInt(e.target.value))}
+                        className="block w-full px-3 py-1 mt-1 border rounded-md shadow-sm" placeholder="Contoh: 50000" />
+                </div>
+                {/* )} */}
 
                 {/* keternagnan & submit */}
                 <div>
