@@ -13,6 +13,7 @@ export default function Layout() {
                     <Link to="/dashboard/transaction" className="block p-2 font-semibold">Transaksi</Link>
                     <Link to="/dashboard/items" className="block p-2 font-semibold">Stok</Link>
                     <Link to="/dashboard/reports" className="block p-2 font-semibold">Laporan</Link>
+                    <Link to="/dashboard/categories" className="block p-2 font-semibold">Kategori</Link>
                     <Link to="/logout" className="bottom-0 block p-2 font-semibold">Log Out</Link>
                 </nav>
                 <div className="mt-auto"></div>
