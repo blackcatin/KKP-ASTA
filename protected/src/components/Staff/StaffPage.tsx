@@ -20,9 +20,11 @@ export default function StaffPage() {
     const [modalOpen, setModalOpen] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
 
+    const apiUrl = import.meta.env.VITE_API_URL;
+
     const fetchStaff = async () => {
         try {
-            const response = await fetch("http://localhost:3000/api/users?role=staff");
+            const response = await fetch(`${apiUrl}/users?role=staff`);
 
             if (!response.ok) {
                 throw new Error("Gagal menghubungkan dengan data staff");
@@ -91,7 +93,7 @@ export default function StaffPage() {
         const userId = currentUser.id;
 
         try {
-            const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
+            const response = await fetch(`${apiUrl}/users/${userId}`, {
                 method: "DELETE"
             });
 

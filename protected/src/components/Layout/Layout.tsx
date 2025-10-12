@@ -11,7 +11,7 @@ export default function Layout() {
                 <nav className="flex-1 space-y-2">
                     <Link to="/dashboard/staff" className="block p-2 font-semibold">Staff</Link>
                     <Link to="/dashboard/transaction" className="block p-2 font-semibold">Transaksi</Link>
-                    <Link to="/dashboard/stocks" className="block p-2 font-semibold">Stok</Link>
+                    <Link to="/dashboard/items" className="block p-2 font-semibold">Stok</Link>
                     <Link to="/dashboard/reports" className="block p-2 font-semibold">Laporan</Link>
                     <Link to="/logout" className="bottom-0 block p-2 font-semibold">Log Out</Link>
                 </nav>

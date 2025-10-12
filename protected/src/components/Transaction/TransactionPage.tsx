@@ -25,9 +25,11 @@ export default function TransactionPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const apiUrl = import.meta.env.VITE_API_URL;
+
     const fetchMasterItems = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/items');
+            const response = await fetch(`${apiUrl}/items`);
             if (!response.ok) {
                 throw new Error('Gagal menghubungkan dengan data item')
             }
@@ -112,7 +114,7 @@ export default function TransactionPage() {
 
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:3000/api/transactions', {
+            const response = await fetch(`${apiUrl}/transactions`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
