@@ -16,8 +16,10 @@ export default function Login() {
         setLoading(true);
         setError(null);
 
+        const apiUrl = import.meta.env.VITE_API_URL;
+
         try {
-            const response = await fetch("http://localhost:3000/api/users/login", {
+            const response = await fetch(`${apiUrl}/users/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
