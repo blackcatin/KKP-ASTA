@@ -1,11 +1,43 @@
 @import 'tailwindcss';
 @source '../.flowbite-react/class-list.json';
 
+:root {
+  --color-primary: #1E2A3A;
+  --color-secondary: #80C7FB;
+  --color-accent: #0E8390;
+}
+
 html,
 body,
 #root {
-	height: 100%;
-	width: 100%;
-	margin: 0;
-	padding: 0;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background: none;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: whitesmoke;
+  filter: blur(16px) brightness(0.9);
+  transform: scale(1.05);
+  z-index: -10;
+}
+
+.glass-bg {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+body, * {
+  color: var(--color-text-main);
 }
