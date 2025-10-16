@@ -24,7 +24,13 @@ export default function StaffPage() {
 
     const fetchStaff = async () => {
         try {
-            const response = await fetch(`${apiUrl}/users?role=staff`);
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${apiUrl}/users?role=staff`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
 
             if (!response.ok) {
                 throw new Error("Gagal menghubungkan dengan data staff");
