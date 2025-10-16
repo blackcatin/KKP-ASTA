@@ -29,6 +29,8 @@ export default function ItemForm({ currentItem, masterCategories, onSuccess, onC
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const apiUrl = import.meta.env.VITE_API_URL;
+
     useEffect(() => {
         if (isEditing && currentItem) {
             setName(currentItem.item_name);
@@ -48,17 +50,29 @@ export default function ItemForm({ currentItem, masterCategories, onSuccess, onC
         setLoading(true);
         setError(null);
 
-        const finalStock = (typeof currentStock === 'string') ? parseInt(currentStock) || 0 : currentStock;
-        const method = isEditing ? 'PUT' : 'POST';
-        const url = `http://localhost:3000/api/items${isEditing ? `/${currentItem?.id}` : ''}`;
+        const finalCategoryId = typeof categoryId === 'string' ? null : categoryId;
 
-        const payload = {
+        if (!name || !finalCategoryId) {
+            setError('Nama item dan Kategori wajib diisi.');
+            setLoading(false);
+            return;
+        }
+
+        const method = isEditing ? 'PUT' : 'POST';
+        const url = `${apiUrl}/items${isEditing ? `/${currentItem?.id}` : ''}`;
+
+        const basePayload = {
             item_name: name,
-            category_id: typeof categoryId === 'string' ? null : categoryId,
-            current_stock: isEditing ? currentItem?.current_stock : finalStock,
+            category_id: finalCategoryId,
             is_trackable: isTrackable,
-            ...(!isEditing && { current_stock: parseInt(currentStock as string) || 0 }),
         };
+
+        const payload = isEditing
+            ? basePayload
+            : {
+                ...basePayload,
+                current_stock: parseInt(currentStock as string) || 0,
+            };
 
         try {
             const response = await fetch(url, {
@@ -69,7 +83,7 @@ export default function ItemForm({ currentItem, masterCategories, onSuccess, onC
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Gagal menyimpan item')
+                throw new Error(errorData.message || 'Gagal menyimpan item');
             }
             onSuccess();
         } catch (error) {

@@ -91,6 +91,10 @@ export default function ItemPage() {
         setIsEditModalOpen(true);
     }
 
+    const closeEditModal = () => {
+        setIsEditModalOpen(false);
+    }
+
 
     const handleSucces = () => {
         setIsAddModalOpen(false);
@@ -98,6 +102,7 @@ export default function ItemPage() {
         closeDeleteModal();
 
         fetchItems();
+        fetchCategories();
     }
 
     const executeDelete = async () => {
@@ -185,18 +190,18 @@ export default function ItemPage() {
                 )}
             </Modal>
 
-            <Modal isOpen={isEditModalOpen} onClose={handleSucces} title="Edit Item">
+            <Modal isOpen={isEditModalOpen} onClose={closeEditModal} title="Edit Item">
                 {currentItem && (
                     <ItemForm
                         currentItem={currentItem}
                         masterCategories={masterCategories}
                         onSuccess={handleSucces}
-                        onCancel={closeDeleteModal}
+                        onCancel={closeEditModal}
                     />
                 )}
             </Modal>
 
-            <Modal isOpen={isAddModalOpen} onClose={handleSucces} title="Add Item">
+            <Modal isOpen={isAddModalOpen} onClose={closeAddModal} title="Add Item">
                 <ItemForm
                     currentItem={null}
                     masterCategories={masterCategories}
