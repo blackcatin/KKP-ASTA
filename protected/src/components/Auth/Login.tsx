@@ -63,6 +63,7 @@ export default function Login() {
         backgroundImage: theme === "light" ? `url(${Background})` : "none",
       }}
     >
+      {/* Theme Toggle */}
       <button
         type="button"
         onClick={toggleTheme}
@@ -72,6 +73,7 @@ export default function Login() {
         {theme === "light" ? <Moon size={22} /> : <Sun size={22} />}
       </button>
 
+      {/* Illustration */}
       <div className="hidden md:flex w-1/2 h-screen items-center justify-center">
         <img
           src={theme === "dark" ? VectorDark : VectorLight}
@@ -80,10 +82,9 @@ export default function Login() {
         />
       </div>
 
+      {/* Login Form */}
       <div className="flex justify-start w-full md:w-1/2 h-screen items-center p-4 md:pl-24 lg:pl-32">
-        <div
-          className="w-full max-w-md p-8 m-6 bg-[var(--color-secondary)] text-white dark:bg-white dark:text-gray-800 bg-opacity-95 backdrop-blur-md rounded-2xl shadow-2xl border border-transparent dark:border-gray-200 transition-all duration-500"
-        >
+        <div className="w-full max-w-md p-8 m-6 bg-[var(--color-secondary)] text-white dark:bg-white dark:text-gray-800 bg-opacity-95 backdrop-blur-md rounded-2xl shadow-2xl border border-transparent dark:border-gray-200 transition-all duration-500">
           <div className="flex flex-col items-center mb-6">
             <img src={Logo} alt="Logo" className="w-20 mb-3" />
             <h1 className="text-2xl font-bold tracking-wide text-center">
@@ -94,6 +95,7 @@ export default function Login() {
           <form onSubmit={handleLogin} className="space-y-5">
             {error && <div className="text-sm text-center text-red-500">{error}</div>}
 
+            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -111,6 +113,7 @@ export default function Login() {
               />
             </div>
 
+            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -137,11 +140,12 @@ export default function Login() {
               </div>
             </div>
 
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
               className="w-full py-3 font-semibold text-white rounded-lg transition-all duration-200 ease-in-out shadow-md hover:shadow-lg hover:shadow-[var(--color-secondary)/50] hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ backgroundColor: "var(--color-primary)", color:"white" }}
+              style={{ backgroundColor: "var(--color-primary)" }}
             >
               {loading ? "Loading..." : "Login"}
             </button>
