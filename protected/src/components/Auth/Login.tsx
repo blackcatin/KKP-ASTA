@@ -34,6 +34,10 @@ export default function Login() {
 
       if (response.ok) {
         console.log("Login berhasil:", data.message, data.user);
+
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
         nav("/dashboard");
       } else {
         setError(data.message || "Login gagal, silakan coba lagi.");
@@ -48,16 +52,16 @@ export default function Login() {
 
   return (
     <div
-      className="flex items-center justify-end w-screen min-h-screen bg-cover bg-center"
+      className="flex items-center justify-end w-screen min-h-screen bg-center bg-cover"
       style={{
         backgroundImage: `url(${Background})`,
       }}
     >
-      <div className="flex justify-center w-full md:w-1/2 lg:w-1/3 mr-0 md:mr-12 lg:mr-24">
-        <div className="w-full max-w-md p-8 m-6 bg-white rounded-2xl shadow-2xl">
+      <div className="flex justify-center w-full mr-0 md:w-1/2 lg:w-1/3 md:mr-12 lg:mr-24">
+        <div className="w-full max-w-md p-8 m-6 bg-white shadow-2xl rounded-2xl">
           <div className="flex flex-col items-center mb-8">
             <img src={Logo} alt="Logo" className="w-20 mb-3" />
-            <h1 className="text-2xl font-bold tracking-wide text-gray-800 text-center">
+            <h1 className="text-2xl font-bold tracking-wide text-center text-gray-800">
               Selamat Datang di KKP-ASTA
             </h1>
           </div>
@@ -114,7 +118,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 font-semibold text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 font-semibold text-white transition rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 backgroundColor: "var(--color-primary)", color: "white"
               }}
@@ -123,7 +127,7 @@ export default function Login() {
             </button>
           </form>
 
-      <div className="mt-5 text-sm text-center">
+          <div className="mt-5 text-sm text-center">
             Lupa password?{" "}
             <a
               href="#"
