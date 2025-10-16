@@ -1,114 +1,144 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react"; // ikon mata
 import Logo from "../../assets/Image/Logo.png";
-import IllustrationImage from "../../assets/Image/illustrations.png";
+import Background from "../../assets/Image/Loginbgg.jpg";
 
 export default function Login() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    const nav = useNavigate();
+  const nav = useNavigate();
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-        const apiUrl = import.meta.env.VITE_API_URL;
+    const apiUrl = import.meta.env.VITE_API_URL;
 
-        try {
-            const response = await fetch(`${apiUrl}/users/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email, password }),
-            });
+    try {
+      const response = await fetch(`${apiUrl}/users/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-            const data = await response.json();
-            console.log(data);
-            if (response.ok) {
-                console.log("Login berhasil:", data.message, data.user);
+      const data = await response.json();
+      console.log(data);
 
-                nav('/dashboard');
-            } else {
-                setError(data.message || "Login gagal, silakan coba lagi.");
-            }
-        } catch (error) {
-            console.error("Terjadi kesalahan:", error);
-            setError("Tidak dapat terhubung ke server. Periksa koneksi.");
-        } finally {
-            setLoading(false);
-        }
-    };
+      if (response.ok) {
+        console.log("Login berhasil:", data.message, data.user);
+        nav("/dashboard");
+      } else {
+        setError(data.message || "Login gagal, silakan coba lagi.");
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan:", error);
+      setError("Tidak dapat terhubung ke server. Periksa koneksi.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <div className="flex w-screen min-h-screen">
+  return (
+    <div
+      className="flex items-center justify-end w-screen min-h-screen bg-cover bg-center"
+      style={{
+        backgroundImage: `url(${Background})`,
+      }}
+    >
+      <div className="flex justify-center w-full md:w-1/2 lg:w-1/3 mr-0 md:mr-12 lg:mr-24">
+        <div className="w-full max-w-md p-8 m-6 bg-white rounded-2xl shadow-2xl">
+          <div className="flex flex-col items-center mb-8">
+            <img src={Logo} alt="Logo" className="w-20 mb-3" />
+            <h1 className="text-2xl font-bold tracking-wide text-gray-800 text-center">
+              Selamat Datang di KKP-ASTA
+            </h1>
+          </div>
 
-            <div className="relative items-center justify-center hidden w-1/2 p-10 overflow-hidden md:flex bg-gray-50">
-                <div className="relative z-10 w-full max-w-xl">
-                    <img
-                        src={IllustrationImage}
-                        alt="Illustration"
-                        className="object-contain w-full h-full"
-                    />
-                </div>
+          <form onSubmit={handleLogin} className="space-y-5">
+            {error && (
+              <div className="text-sm text-center text-red-500">{error}</div>
+            )}
+
+            <div>
+              <label
+                htmlFor="email"
+                className="block mb-1 text-sm font-semibold text-gray-700"
+              >
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Masukkan email kamu"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+              />
             </div>
 
-            <div className="flex items-center justify-center w-full px-4 bg-white md:w-1/2">
-                <div className="w-full max-w-md">
-                    <div className="flex flex-col items-center mb-10">
-                        <img src={Logo} alt="Logo" className="w-24 mb-4" />
-                        <h1 className="text-3xl font-bold tracking-wide text-gray-800">
-                            KKP-ASTA
-                        </h1>
-                    </div>
-
-                    <form onSubmit={handleLogin} className="space-y-6">
-                        {error && (
-                            <div className="text-sm text-center text-red-500">{error}</div>
-                        )}
-                        <div>
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="Email"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                            />
-                        </div>
-                        <div>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Password"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full py-3 font-semibold text-white transition bg-green-500 rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {loading ? "Loading..." : "Login"}
-                        </button>
-                    </form>
-
-                    <div className="mt-6 text-sm text-center">
-                        Lupa password?{" "}
-                        <a href="#" className="text-blue-600 hover:underline">
-                            Hubungi admin.
-                        </a>
-                    </div>
-
-                    <p className="mt-12 text-xs text-center text-gray-400">
-                        Versi 1.0.0 © 2025 KKP-ASTA
-                    </p>
-                </div>
+            <div>
+              <label
+                htmlFor="password"
+                className="block mb-1 text-sm font-semibold text-gray-700"
+              >
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Masukkan password kamu"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-[var(--color-primary)]"
+                  aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 font-semibold text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: "var(--color-primary)", color: "white"
+              }}
+            >
+              {loading ? "Loading..." : "Login"}
+            </button>
+          </form>
+
+      <div className="mt-5 text-sm text-center">
+            Lupa password?{" "}
+            <a
+              href="#"
+              className="font-medium text-[var(--color-primary)] transition duration-200 ease-in-out hover:underline hover:decoration-[var(--color-primary)] underline-offset-4"
+            >
+              Hubungi admin
+            </a>
+          </div>
+
+
+          <p className="mt-10 text-xs text-center text-gray-500">
+            © 2025 KKP-ASTA — Versi 1.0.0
+          </p>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
