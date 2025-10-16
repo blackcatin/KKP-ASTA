@@ -40,12 +40,20 @@ const ItemService = {
 				return obj;
 			}, {});
 
-		const {updateItem} = await knex('items')
+		if (Object.keys(updateData).length === 0) {
+			return null;
+		}
+
+		console.log(updateData);
+
+		const updated = await knex('items')
 			.where({id})
 			.update(updateData)
 			.returning(['item_name', 'category_id', 'is_trackable']);
 
-		return updateItem;
+		if (updated.length === 0) return null;
+
+		return updated[0];
 	},
 
 	// Fungsi untuk menghapus data

@@ -35,24 +35,30 @@ router.post('/', async (req, res) => {
 });
 
 router.put('/:id', auth.authMiddleware, auth.authorizeRole('owner'), async (req, res) => {
-	const {item_name, category_id} = req.body;
 	const {id} = req.params;
-	const updateData = req.body;
+	const {item_name, category_id, is_trackable} = req.body;
 
 	if (!item_name || !category_id) {
 		return res.status(400).json({message: 'Nama & Kategori wajib diisi'});
 	}
 
+	const itemId = parseInt(id);
+
+	if (isNaN(itemId)) {
+		return res.status(400).json({message: 'ID tidak valid'});
+	}
+
 	try {
-		const updateItem = await ItemService.updateItem(id, updateData);
-		const itemId = parseInt(id);
+		const payload = {
+			item_name,
+			category_id,
+			is_trackable,
+		};
+
+		const updateItem = await ItemService.updateItem(itemId, payload);
 
 		if (!updateItem) {
 			return res.status(404).json({message: 'Item tidak ditemukan'});
-		}
-
-		if (isNaN(itemId)) {
-			return res.status(400).json({message: 'ID tidak valid'});
 		}
 
 		res.status(200).json({message: 'Item berhasil diedit', item: updateItem});
@@ -61,6 +67,7 @@ router.put('/:id', auth.authMiddleware, auth.authorizeRole('owner'), async (req,
 		if (error.code === '23505') {
 			return res.status(409).json({message: 'Nama item sudah digunakan.'});
 		}
+
 		console.error(error);
 		res.status(500).json({message: 'Server error'});
 	}
