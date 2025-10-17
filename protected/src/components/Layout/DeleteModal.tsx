@@ -1,20 +1,25 @@
 import { useState } from "react";
+import api from "../../api";
 
 interface DeleteConfirmationProps {
+    itemId: number;
     itemName: string;
     itemType: string;
+    endpoint: string;
     onDelete: () => void;
     onCancel: () => void;
 }
 
-export default function DeleteModal({ itemName, itemType, onDelete, onCancel }: DeleteConfirmationProps) {
+export default function DeleteModal({ itemId, itemName, itemType, endpoint, onDelete, onCancel }: DeleteConfirmationProps) {
     const [loading, setLoading] = useState(false);
 
     const handleDeleteClick = async () => {
         setLoading(true);
 
         try {
-            await onDelete();
+            await api.delete(`/${endpoint}/${itemId}`);
+
+            onDelete();
         } catch (error) {
             console.error('Gagal menghapus', error);
         } finally {

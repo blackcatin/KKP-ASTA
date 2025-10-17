@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import Modal from "../Layout/Modal";
-import AddStaffForm from "./AddStaffForm";
-import EditStaffForm from "./EditStaffForm";
-import DeleteStaff from "./DeleteStaff";
+import DeleteModal from "../Layout/DeleteModal";
+import StaffForm from "./StaffForm";
 
 interface User {
     id: number;
@@ -17,7 +16,7 @@ export default function StaffPage() {
     const [error, setError] = useState<string | null>(null);
     const [editModal, setEditModal] = useState(false);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [modalOpen, setModalOpen] = useState(false);
+    const [addModal, setAddModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
 
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -54,17 +53,6 @@ export default function StaffPage() {
         fetchStaff();
     }, []);
 
-    const handleAddSuccess = () => {
-        setModalOpen(false);
-        fetchStaff();
-    }
-
-    const handleEditSuccess = () => {
-        setEditModal(false);
-        setCurrentUser(null);
-        fetchStaff();
-    }
-
     const openDeleteModal = (user: User) => {
         setCurrentUser(user);
         setDeleteModal(true);
@@ -85,39 +73,23 @@ export default function StaffPage() {
         setCurrentUser(null);
     }
 
-    const openModal = () => {
-        setModalOpen(true);
+    const openAddModal = () => {
+        setCurrentUser(null);
+        setAddModal(true);
     }
 
-    const closeModal = () => {
-        setModalOpen(false);
+    const closeAddModal = () => {
+        setAddModal(false);
+        setCurrentUser(null);
     }
 
-    const executeDelete = async () => {
-        if (!currentUser) return;
+    const handleSuccess = () => {
+        setAddModal(false);
+        setEditModal(false);
+        setDeleteModal(false);
 
-        const userId = currentUser.id;
-
-        try {
-            const response = await fetch(`${apiUrl}/users/${userId}`, {
-                method: "DELETE"
-            });
-
-            if (response.ok) {
-                closeDeleteModal();
-                setStaffList(staffList.filter(user => user.id !== userId));
-                console.log(`Pengguna dengan ID ${userId} berhasil dihapus`);
-            } else {
-                const errorData = await response.json();
-                console.error("Gagal menghapus user:", errorData.message);
-                setError(errorData.message);
-                throw new Error(errorData.message); // lempar errror agar modal delete tahu
-            }
-        } catch (error) {
-            console.error("Gagal menghapus user", error);
-            setError('Server error');
-            throw error;
-        }
+        setCurrentUser(null);
+        fetchStaff();
     }
 
     if (loading) {
@@ -136,7 +108,7 @@ export default function StaffPage() {
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold">Daftar staff</h3>
                     <button
-                        onClick={openModal}
+                        onClick={openAddModal}
                         className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700">
                         Tambah akun staff
                     </button>
@@ -173,16 +145,19 @@ export default function StaffPage() {
                 </tbody>
             </table>
 
-            <Modal isOpen={modalOpen} onClose={closeModal} title="Tambah akun staff">
-                <AddStaffForm onSuccess={handleAddSuccess} onCancel={closeModal} />
+            <Modal isOpen={addModal} onClose={closeAddModal} title="Tambah akun staff">
+                <StaffForm
+                    onSuccess={handleSuccess}
+                    onCancel={closeAddModal}
+                />
             </Modal>
 
             <Modal isOpen={editModal} onClose={closeEditModal} title={`Edit akun: ${currentUser?.full_name}`}>
                 {
                     currentUser && (
-                        <EditStaffForm
+                        <StaffForm
                             currentUser={currentUser}
-                            onSuccess={handleEditSuccess}
+                            onSuccess={handleSuccess}
                             onCancel={closeEditModal}
                         />
                     )
@@ -192,9 +167,12 @@ export default function StaffPage() {
             <Modal isOpen={deleteModal} onClose={closeDeleteModal} title="Konfirmasi Penghapusan">
                 {
                     currentUser && (
-                        <DeleteStaff
-                            user={currentUser}
-                            onDelete={executeDelete}
+                        <DeleteModal
+                            itemId={currentUser.id}
+                            itemName={currentUser.full_name}
+                            itemType="user"
+                            endpoint="users"
+                            onDelete={handleSuccess}
                             onCancel={closeDeleteModal}
                         />
                     )

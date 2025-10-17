@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import api from "../../api";
 
 interface Item {
     id: number;
@@ -29,8 +30,6 @@ export default function ItemForm({ currentItem, masterCategories, onSuccess, onC
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const apiUrl = import.meta.env.VITE_API_URL;
-
     useEffect(() => {
         if (isEditing && currentItem) {
             setName(currentItem.item_name);
@@ -57,16 +56,13 @@ export default function ItemForm({ currentItem, masterCategories, onSuccess, onC
             setLoading(false);
             return;
         }
-
-        const method = isEditing ? 'PUT' : 'POST';
-        const url = `${apiUrl}/items${isEditing ? `/${currentItem?.id}` : ''}`;
-
+        // untuk add
         const basePayload = {
             item_name: name,
             category_id: finalCategoryId,
             is_trackable: isTrackable,
         };
-
+        // untuk edit
         const payload = isEditing
             ? basePayload
             : {
@@ -75,16 +71,12 @@ export default function ItemForm({ currentItem, masterCategories, onSuccess, onC
             };
 
         try {
-            const response = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Gagal menyimpan item');
+            if (isEditing && currentItem?.id) {
+                await api.put(`/items/${currentItem.id}`, payload);
+            } else {
+                await api.post(`/items`, basePayload);
             }
+
             onSuccess();
         } catch (error) {
             if (error instanceof Error) {

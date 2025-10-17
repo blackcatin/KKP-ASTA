@@ -1,4 +1,5 @@
 import { useState } from "react"
+import api from "../../api";
 
 interface AddStaffFormProps {
     onSuccess: () => void; // berhasil => close
@@ -23,28 +24,16 @@ export default function AddStaffForm({ onSuccess, onCancel }: AddStaffFormProps)
             return;
         }
 
+        const payload = {
+            full_name: fullName,
+            email: email,
+            password: password,
+            role: 'staff',
+        }
+
         try {
-            const response = await fetch('http://localhost:3000/api/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // tambah authorizaiton setelah sistem token dibuat
-                },
-                body: JSON.stringify({
-                    full_name: fullName,
-                    email: email,
-                    password: password,
-                    role: 'staff', // defult staf
-                }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                onSuccess(); // refresh list & tutup modal
-            } else {
-                setError(data.message || 'Gagal menambahkan akun');
-            }
+            await api.post('/users', payload);
+            onSuccess();
         } catch (error) {
             setError('Server error');
         } finally {

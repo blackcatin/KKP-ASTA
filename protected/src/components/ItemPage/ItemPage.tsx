@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import Modal from "../Layout/Modal";
 import DeleteModal from "../Layout/DeleteModal";
 import ItemForm from "./ItemForm";
-import EditItemForm from "./EditItemForm";
 
 interface Item {
     id: number;
@@ -105,32 +104,6 @@ export default function ItemPage() {
         fetchCategories();
     }
 
-    const executeDelete = async () => {
-        if (!currentItem) return;
-
-        const itemId = currentItem.id;
-
-        try {
-            const response = await fetch(`${apiUrl}/items/${itemId}`, {
-                method: 'DELETE'
-            });
-
-            if (response.ok) {
-                closeDeleteModal();
-                setItemList(prevList => prevList.filter(item => item.id !== currentItem.id));
-                console.log(itemList);
-                console.log("Item berhasil dihapus!");
-            } else {
-                const errorData = await response.json();
-                setError(errorData.message);
-                throw new Error('Gagal menghapus item');
-            }
-        } catch (error) {
-            console.error('Gagal menghapus item', error);
-            setError('Server errror');
-        }
-    }
-
     if (loading) return <div>Memuat daftar stok...</div>
     if (error) return <div className="text-red-600">Error: {error}...</div>
 
@@ -182,9 +155,11 @@ export default function ItemPage() {
             <Modal isOpen={isDeleteOpen} onClose={closeDeleteModal} title="Konfirmasi penghapusan Item">
                 {currentItem && (
                     <DeleteModal
+                        itemId={currentItem.id}
                         itemName={currentItem.item_name}
                         itemType="item inventaris"
-                        onDelete={executeDelete}
+                        endpoint="items"
+                        onDelete={handleSucces}
                         onCancel={closeDeleteModal}
                     />
                 )}
