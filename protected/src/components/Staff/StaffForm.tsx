@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
-import api from '../../api';
+import { useEffect, useState } from "react";
+import { User, Mail, ShieldCheck } from "lucide-react";
+import api from "../../api";
 
-interface User {
+interface UserType {
     id?: number;
     full_name: string;
     email: string;
@@ -9,17 +10,21 @@ interface User {
 }
 
 interface StaffFormProps {
-    currentUser?: User;
+    currentUser?: UserType | null;
     onSuccess: () => void;
     onCancel: () => void;
 }
 
-export default function StaffForm({ currentUser, onSuccess, onCancel }: StaffFormProps) {
+export default function StaffForm({
+    currentUser,
+    onSuccess,
+    onCancel,
+}: StaffFormProps) {
     const isEditing = !!currentUser;
-    const [fullName, setFullName] = useState(currentUser?.full_name || '');
-    const [email, setEmail] = useState(currentUser?.email || '');
-    const [password, setPassword] = useState('');
-    const [role, setRole] = useState(currentUser?.role || '');
+    const [fullName, setFullName] = useState(currentUser?.full_name || "");
+    const [email, setEmail] = useState(currentUser?.email || "");
+    const [password, setPassword] = useState("");
+    const [role, setRole] = useState(currentUser?.role || "staff");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -29,12 +34,11 @@ export default function StaffForm({ currentUser, onSuccess, onCancel }: StaffFor
             setEmail(currentUser.email);
             setRole(currentUser.role);
         } else {
-            setFullName('');
-            setEmail('');
-            setPassword('');
-            setRole('staff');
+            setFullName("");
+            setEmail("");
+            setPassword("");
+            setRole("staff");
         }
-
     }, [currentUser, isEditing]);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -46,73 +50,104 @@ export default function StaffForm({ currentUser, onSuccess, onCancel }: StaffFor
             full_name: fullName,
             email,
             role,
-        }
-        if (password) payload.password = password
+        };
+        if (password) payload.password = password;
 
         try {
             if (isEditing && currentUser?.id) {
-                console.log('Payload:', payload);
                 await api.put(`/users/${currentUser.id}`, payload);
             } else {
-                console.log('Payload:', payload);
-                await api.post('/users', payload);
+                await api.post("/users", payload);
             }
 
             onSuccess();
-        } catch (error) {
-            if (error instanceof Error) {
-                setError(error.message || 'Server error');
-            }
+        } catch (error: any) {
+            setError(error?.response?.data?.message || error.message || "Server error");
         } finally {
             setLoading(false);
         }
-    }
+    };
+
+    const inputWrapperClass = "relative w-full";
+    const iconClass = "absolute top-1/2 left-3 -translate-y-1/2 text-gray-400";
+    const inputClass =
+        "w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition";
 
     return (
-        <form onSubmit={handleSubmit} className='space-y-6'>
-            {error && <div className='text-sm text-red-500'>{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-6">
+            {error && <div className="text-sm text-red-500">{error}</div>}
 
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Nama lengkap</label>
-                <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-green-500" required />
+            {/* Nama lengkap */}
+            <div className={inputWrapperClass}>
+                <User className={iconClass} size={18} />
+                <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Nama lengkap"
+                    className={inputClass}
+                    required
+                />
             </div>
-            {/* input email */}
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
-                <input type="text" value={email} onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-green-500" required />
+
+            {/* Email */}
+            <div className={inputWrapperClass}>
+                <Mail className={iconClass} size={18} />
+                <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email"
+                    className={inputClass}
+                    required
+                />
             </div>
-            {/* input password */}
-            <div>
-                <label className="block text-sm font-medium text-gray-700">
-                    Password {isEditing && <span className='text-xs text-gray-400'>(Kosongkan jika tidak ingin mengubah)</span>}
-                </label>
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                    placeholder={isEditing ? 'Biarkan kosong jika tidak diubah' : ''}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-green-500" />
+
+            {/* Password (opsional saat edit) */}
+            <div className={inputWrapperClass}>
+                <ShieldCheck className={iconClass} size={18} />
+                <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={
+                        isEditing
+                            ? "Kosongkan jika tidak ingin mengubah password"
+                            : "Masukkan password"
+                    }
+                    className={inputClass}
+                />
             </div>
-            {/* role */}
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Role</label>
+
+            {/* Role */}
+            <div className={inputWrapperClass}>
+                <ShieldCheck className={iconClass} size={18} />
                 <select
-                    value={role} onChange={(e) => setRole(e.target.value)}
-                    className='w-full px-3 py-2 border rounded-lg focus:ring-blue-500'
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className={inputClass + " appearance-none"}
                 >
                     <option value="staff">Staff</option>
                     <option value="Owner">Owner</option>
                 </select>
             </div>
 
-            {/* action */}
-            <div className="flex justify-end pt-2 mt-4 space-x-2 border-t">
-                <button type="button" onClick={onCancel} className="px-3 py-1 text-gray-700 rounded-lg bg-amber-700 hover:bg-amber-600">
-                    Batal
+            <div className="flex justify-end gap-3 pt-4 mt-4 border-t">
+                <button
+                    type="button"
+                    onClick={onCancel}
+                    className="flex items-center px-4 py-2 text-sm font-medium text-white transition-colors duration-150 bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-400"
+                >
+                    X Batal
                 </button>
-                <button type="submit" disabled={loading} className="px-3 py-1 text-white bg-green-600 rounded-lg hover:bg-green-400 disabled:opacity-50">
-                    {loading ? 'Menyimpan...' : 'Simpan akun'}
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-4 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-500 disabled:opacity-50"
+                >
+                    {loading ? "Menyimpan..." : isEditing ? "Simpan Perubahan" : "Tambah Akun"}
                 </button>
             </div>
         </form>
-    )
+    );
 }
