@@ -5,15 +5,22 @@ const knex = require('../config/database');
 exports.authMiddleware = async (req, res, next) => {
 	try {
 		const authHeader = req.headers['authorization'];
-		if (!authHeader || !authHeader.startsWith('Bearer ')) {
-			return res.status(401).json({message: 'Token tidak ditemukan'});
+		let token;
+		if (authHeader && authHeader.startsWith('Bearer ')) {
+			token = authHeader.split(' ')[1];
+		} else if (req.query.token) {
+			token = req.query.token;
 		}
 
-		const token = authHeader.split(' ')[1];
-		const blacklisted = await knex('token_blacklist').where({token}).first();
+		if (!token) {
+			return res.status(401).json({message: 'Token tidak ditemukan', code: 'NO_TOKEN'});
+		}
 
+		const blacklisted = await knex('token_blacklist').where({token}).first();
 		if (blacklisted) {
-			return res.status(401).json({message: 'Token tidak valid (sudah logout)'});
+			return res
+				.status(401)
+				.json({message: 'Token tidak valid (sudah logout)', code: 'BLACKLISTED'});
 		}
 
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -21,19 +28,19 @@ exports.authMiddleware = async (req, res, next) => {
 		req.user = decoded;
 		req.token = token;
 
-		console.log('Token masuk:', token);
-		console.log('Decoded:', decoded);
+		console.log('✅ Token valid:', token);
+		console.log('🧩 Decoded payload:', decoded);
 
 		next();
 	} catch (error) {
-		console.error(error);
-		res.status(401).json({message: 'Token tidak valid atau kadaluarsa'});
-	}
+		console.error('❌ Auth error:', error);
 
-	// req.user = {
-	// 	id: 1,
-	// 	role: 'owner',
-	// };
+		if (error.name === 'TokenExpiredError') {
+			return res.status(401).json({message: 'Token kadaluarsa', code: 'TOKEN_EXPIRED'});
+		}
+
+		return res.status(401).json({message: 'Token tidak valid', code: 'INVALID_TOKEN'});
+	}
 };
 
 exports.authorizeRole = requiredRole => (req, res, next) => {

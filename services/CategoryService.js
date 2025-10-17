@@ -16,8 +16,9 @@ const CategoryService = {
 	},
 
 	// Fungsi untuk membuat data baru
-	createCat: async name => {
-		const [newCat] = await knex('categories').insert({name}.returning('*'));
+	createCat: async data => {
+		const {name, description} = data;
+		const [newCat] = await knex('categories').insert({name, description}).returning('*');
 		return newCat;
 	},
 

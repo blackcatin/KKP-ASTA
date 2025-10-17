@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import api from "../../api";
 
 interface Category {
     id: number;
@@ -19,8 +20,6 @@ export default function CategoryForm({ currentCat, onSuccess, onCancel }: CatPro
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const apiUrl = import.meta.env.VITE_API_URL;
-
     useEffect(() => {
         if (isEditing && currentCat) {
             setName(currentCat.name);
@@ -37,25 +36,18 @@ export default function CategoryForm({ currentCat, onSuccess, onCancel }: CatPro
         setLoading(true);
         setError(null);
 
-        const method = isEditing ? 'PUT' : 'POST';
-        const url = `${apiUrl}/categories${isEditing ? `/${currentCat?.id}` : ''}`;
-
         const payload = {
             name: name,
             description: description,
         };
 
         try {
-            const response = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Gagal menyimpan item')
+            if (isEditing && currentCat?.id) {
+                await api.put(`/categories/${currentCat.id}`, payload);
+            } else {
+                await api.post(`/categories`, payload);
             }
+
             onSuccess();
         } catch (error) {
             if (error instanceof Error) {
