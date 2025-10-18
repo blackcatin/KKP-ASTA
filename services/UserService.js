@@ -19,7 +19,7 @@ const UserService = {
 	},
 
 	findUserByEmail: async email => {
-		return knex('users').where({email}).first();
+		return knex('users').select('id', 'full_name', 'password_hash', 'role').where({email}).first();
 	},
 
 	getAllUsers: async role => {
@@ -37,14 +37,21 @@ const UserService = {
 
 	updateUser: async (id, data) => {
 		const allowedFields = ['full_name', 'email', 'role'];
-		// filter editable
-		const updateData = Object.keys(data)
-			.filter(key => allowedFields.includes(key))
-			.reduce((obj, key) => {
-				obj[key] = data[key];
-				return obj;
-			}, {});
+		const updateData = {};
 
+		// Masukkan hanya field yang diizinkan
+		for (const key of allowedFields) {
+			if (data[key] !== undefined && data[key] !== null) {
+				updateData[key] = data[key];
+			}
+		}
+
+		// Kalau ada password baru, hash dan tambahkan ke updateData
+		if (data.password) {
+			updateData.password_hash = await bcrypt.hash(data.password, 10);
+		}
+
+		// Eksekusi update
 		const [updatedUser] = await knex('users')
 			.where({id})
 			.update(updateData)

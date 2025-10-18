@@ -73,13 +73,14 @@ export default function TransactionPage() {
       items,
     });
 
-    const user_id = 1;
-    if (!description || !user_id) {
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    const user_id = user?.id;
+    if (!description.trim || !user_id) {
       setError("Keterangan dan Id pengguna harus diisi");
       return;
     }
 
-    const finalAmount = calculateTotalAmount();
+    const finalAmount = transactionType === 'pemakaian' ? null : calculateTotalAmount();
     const finalItems =
       transactionType === "penjualan" || transactionType === "pembelian"
         ? items.filter((it) => it.itemId !== null)
@@ -95,7 +96,7 @@ export default function TransactionPage() {
 
     const payload = {
       user_id,
-      transactionType,
+      transaction_type: transactionType,
       description,
       amount: finalAmount,
       items: finalItems,
@@ -126,13 +127,17 @@ export default function TransactionPage() {
   };
 
   if (loading) return <div>Memuat data item...</div>;
-  if (error) return <div className="text-red-600">Error: {error}</div>;
 
   return (
     <div className="max-w-3xl p-8 mx-auto bg-transparent">
       <h2 className="mb-8 text-3xl font-semibold text-gray-800">
         Pencatatan Transaksi
       </h2>
+      {error && (
+        <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 border border-red-300 rounded-lg">
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-8">
         <div>
@@ -148,7 +153,8 @@ export default function TransactionPage() {
             <option value="pemakaian">Pemakaian</option>
             <option value="penjualan">Penjualan (Kas Masuk)</option>
             <option value="pembelian">Pembelian (Stok Masuk / Biaya)</option>
-            <option value="biaya_operasional">Biaya Operasional</option>
+            <option value="operasional">Biaya Operasional</option>
+            <option value="pemasukan">Pemasukan Dana</option>
             <option value="gaji">Gaji</option>
             <option value="pajak">Pajak</option>
           </select>
@@ -330,7 +336,10 @@ export default function TransactionPage() {
           </label>
           <textarea
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => {
+              setDescription(e.target.value);
+              if (error) setError(null);
+            }}
             rows={4}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
                       focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"

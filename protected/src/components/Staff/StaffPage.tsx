@@ -78,24 +78,6 @@ export default function StaffPage() {
       user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const executeDelete = async () => {
-    if (!currentUser) return;
-    const userId = currentUser.id;
-
-    try {
-      const response = await fetch(`${apiUrl}/users/${userId}`, { method: "DELETE" });
-      if (response.ok) {
-        setStaffList(staffList.filter((user) => user.id !== userId));
-        setDeleteModal(false);
-      } else {
-        const err = await response.json();
-        setError(err.message);
-      }
-    } catch {
-      setError("Server error");
-    }
-  };
-
   const SortIcon = ({ column }: { column: SortKey }) => (
     <ArrowUpDown
       size={16}
@@ -247,7 +229,7 @@ export default function StaffPage() {
             itemType="user"
             endpoint="users"
             onDelete={() => {
-              executeDelete();
+              setDeleteModal(false);
               fetchStaff();
             }}
             onCancel={() => setDeleteModal(false)}
