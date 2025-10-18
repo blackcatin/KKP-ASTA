@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { Loader2, Save, Trash2, PlusCircle } from "lucide-react";
+import { Loader2, Save, Trash2, PlusCircle, X } from "lucide-react";
+
 interface TransactionItem {
   itemId: number | null;
   quantity: number;
   price?: number;
 }
+
 interface MasterItem {
   id: number;
   item_name: string;
@@ -65,6 +67,14 @@ export default function TransactionPage() {
     setItems(newItems);
   };
 
+  const handleResetForm = () => {
+    setTransactionType("penjualan");
+    setDescription("");
+    setAmount("");
+    setItems([{ itemId: null, quantity: 1 }]);
+    setError(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Data transaksi siap dikirim", {
@@ -116,9 +126,7 @@ export default function TransactionPage() {
       }
 
       alert("Transaksi berhasil dicatat!");
-      setItems([{ itemId: null, quantity: 1 }]);
-      setDescription("");
-      setAmount("");
+      handleResetForm(); 
     } catch (error) {
       if (error instanceof Error) setError(error.message || "Server error");
     } finally {
@@ -224,7 +232,6 @@ export default function TransactionPage() {
           </div>
         )}
 
-
         <div>
           <label className="block mb-2 text-sm font-medium text-gray-700">
             Jumlah Total (Rp)
@@ -256,12 +263,12 @@ export default function TransactionPage() {
         <div className="flex justify-end gap-3">
           <button
             type="button"
-            className="flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 
-          rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-400 transition-colors duration-150"
-          style={{ color:"white" }}
+            onClick={handleResetForm} 
+            className="flex items-center px-4 py-2 text-sm font-medium text-white transition-colors duration-150 bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-400"
+            style={{ color: "white" }}
           >
-          X Batal
-        </button>
+            <X className="w-4 h-4 mr-2" /> Batal
+          </button>
 
           <button
             type="submit"
@@ -269,7 +276,7 @@ export default function TransactionPage() {
             className="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white 
                        bg-[var(--secondary)] hover:opacity-90 rounded-lg 
                        focus:ring-2 focus:ring-[var(--secondary)] disabled:opacity-70"
-            style={{ backgroundColor: "var(--color-secondary)", color:"white" }}
+            style={{ backgroundColor: "var(--color-secondary)", color: "white" }}
           >
             {loading ? (
               <>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Edit, Trash2, ArrowUpDown, Plus, Search } from "lucide-react";
+import { Pencil, Trash2, ArrowUpDown, Plus, Search } from "lucide-react";
 import Modal from "../Layout/Modal";
 import DeleteModal from "../Layout/DeleteModal";
 import StaffForm from "./StaffForm";
@@ -175,7 +175,7 @@ export default function StaffPage() {
                       className="text-blue-600 hover:text-blue-800"
                       title="Edit"
                     >
-                      <Edit className="w-5 h-5" />
+                      <Pencil className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => {
@@ -201,7 +201,6 @@ export default function StaffPage() {
         </table>
       </div>
 
-      {/* Modal Tambah */}
       <Modal
         isOpen={addModal}
         onClose={() => setAddModal(false)}
@@ -216,7 +215,6 @@ export default function StaffPage() {
         />
       </Modal>
 
-      {/* Modal Edit */}
       <Modal
         isOpen={editModal}
         onClose={() => setEditModal(false)}
@@ -234,7 +232,6 @@ export default function StaffPage() {
         )}
       </Modal>
 
-      {/* Modal Delete */}
       <Modal
         isOpen={deleteModal}
         onClose={() => setDeleteModal(false)}
