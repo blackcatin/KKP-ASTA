@@ -3,7 +3,6 @@ import {
   Package,
   Boxes,
   Layers,
-  ClipboardCheck,
   Loader2,
   X,
   Save,

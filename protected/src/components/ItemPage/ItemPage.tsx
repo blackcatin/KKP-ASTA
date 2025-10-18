@@ -3,7 +3,6 @@ import { Pencil, Trash2, ArrowUpDown } from "lucide-react";
 import Modal from "../Layout/Modal";
 import DeleteModal from "../Layout/DeleteModal";
 import ItemForm from "./ItemForm";
-import EditItemForm from "./EditItemForm";
 
 interface Item {
   id: number;
