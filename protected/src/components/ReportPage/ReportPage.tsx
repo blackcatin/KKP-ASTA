@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import {  TrendingUp, TrendingDown, DollarSign, Calendar } from "lucide-react";
 
 interface ReportData {
     total_penjualan: number;
@@ -18,28 +19,24 @@ export default function ReportPage() {
 
     const apiUrl = import.meta.env.VITE_API_URL;
 
+    const formatRupiah = (value: number) =>
+        new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
+
     const fetchReport = async () => {
         setLoading(true);
         setError(null);
-
         try {
-            // laba rugi
             const pnlResponse = await fetch(`${apiUrl}/reports/laba-rugi?start_date=${startDate}&end_date=${endDate}`);
-            // arus kas
             const cashResponse = await fetch(`${apiUrl}/reports/arus-kas?start_date=${startDate}&end_date=${endDate}`);
 
-            if (!pnlResponse.ok || !cashResponse.ok) {
-                throw new Error('Gagal memuat salah satu laporan, periksa data');
-            }
+            if (!pnlResponse.ok || !cashResponse.ok) throw new Error('Gagal memuat salah satu laporan');
 
             const pnlData = await pnlResponse.json();
             const cashData = await cashResponse.json();
 
-            setReport({ ...pnlData, ...cashData }) // gabung data
+            setReport({ ...pnlData, ...cashData });
         } catch (error) {
-            if (error instanceof Error) {
-                setError(error.message || 'Server error');
-            }
+            if (error instanceof Error) setError(error.message || 'Server error');
         } finally {
             setLoading(false);
         }
@@ -50,70 +47,101 @@ export default function ReportPage() {
     }, []);
 
     return (
-        <div className="p-8 bg-white rounded-lg shadow">
-            <h2 className="mb-6 text-2xl font-semibold">Laporan Keuangan</h2>
+        <div className="p-8 bg-gray-50 min-h-screen">
+            <h2 className="mb-6 text-3xl font-bold flex items-center gap-2 text-gray-800">
+                Laporan Keuangan
+            </h2>
 
-            <div className="flex p-3 mb-5 space-x-3 border rounded-lg bg-gray-50">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Mulai Tanggal</label>
-                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="p-2 mt-1 border rounded-md" />
+            <div className="flex flex-wrap items-end gap-4 p-4 mb-6 bg-white border rounded-xl shadow-sm">
+                <div className="flex items-center gap-2">
+                    <Calendar className="text-gray-500" size={18} />
+                    <div>
+                        <label className="block text-xs text-gray-600">Mulai</label>
+                        <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="p-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
+                        />
+                    </div>
                 </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Sampai Tanggal</label>
-                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="p-2 mt-1 border rounded-md" />
+                <div className="flex items-center gap-2">
+                    <Calendar className="text-gray-500" size={18} />
+                    <div>
+                        <label className="block text-xs text-gray-600">Sampai</label>
+                        <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            className="p-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
+                        />
+                    </div>
                 </div>
-                <button onClick={fetchReport} disabled={loading} className="self-end px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                <button
+                    onClick={fetchReport}
+                    disabled={loading}
+                    className="px-5 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                    style={{ backgroundColor: "var(--color-secondary)", color: "white" }}
+                >
                     {loading ? 'Memuat...' : 'Tampilkan'}
                 </button>
             </div>
 
-            {error && <div className="p-3 mb-4 text-red-700 bg-red-100 rounded-lg">{error}</div>}
+            {error && (
+                <div className="p-4 mb-4 text-red-700 bg-red-100 rounded-lg border border-red-300">
+                    {error}
+                </div>
+            )}
 
-            {report &&
-                <div className="space-y-8">
-                    {/* laba rugi */}
-                    <div className="p-6 bg-white border rounded-lg shadow-sm">
-                        <h3 className="pb-2 mb-4 text-xl font-semibold border-b">Laba Rugi</h3>
-                        <div className="space-y-2">
+            {report && (
+                <div className="grid gap-8 md:grid-cols-2">
+                    <div className="p-6 bg-white border rounded-xl shadow-sm hover:shadow-md transition">
+                        <div className="flex items-center gap-2 mb-4 border-b pb-2">
+                            <TrendingUp className="text-green-600" />
+                            <h3 className="text-xl font-semibold text-gray-800">Laba Rugi</h3>
+                        </div>
+                        <div className="space-y-2 text-gray-700">
                             <p className="flex justify-between">
-                                <span>Total Penjualan</span>
-                                <span className="font-medium text-green-600">Rp. {report.total_penjualan.toLocaleString('id-ID')}</span>
+                                <span>Total Penjualan:</span>
+                                <span className="font-medium text-green-600">{formatRupiah(report.total_penjualan)}</span>
                             </p>
                             <p className="flex justify-between">
-                                <span>Total Biaya(HPP, Gaji, Operasional)</span>
-                                <span className="font-medium text-red-600">Rp. {report.total_biaya.toLocaleString('id-ID')}</span>
+                                <span>Total Biaya (HPP, Gaji, Operasional):</span>
+                                <span className="font-medium text-red-600">{formatRupiah(report.total_biaya)}</span>
                             </p>
-                            <div className="flex justify-between pt-2 mt-3 border-t">
-                                <span className="text-lg font-bold">Laba Bersih:</span>
-                                <span className={`text-lg font-bold ${report.laba_rugi >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                                    Rp {report.laba_rugi.toLocaleString('id-ID')}
+                            <div className="flex justify-between pt-3 mt-4 border-t font-semibold">
+                                <span>Laba Bersih:</span>
+                                <span className={`text-lg ${report.laba_rugi >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                                    {formatRupiah(report.laba_rugi)}
                                 </span>
                             </div>
                         </div>
                     </div>
-                    {/* laporan arus kas */}
-                    <div className="p-6 bg-white border rounded-lg shadow-sm">
-                        <h3 className="pb-2 mb-4 text-xl font-semibold border-b">Arus Kas</h3>
-                        <div className="space-y-2">
+
+                    <div className="p-6 bg-white border rounded-xl shadow-sm hover:shadow-md transition">
+                        <div className="flex items-center gap-2 mb-4 border-b pb-2">
+                            <DollarSign className="text-yellow-600" />
+                            <h3 className="text-xl font-semibold text-gray-800">Arus Kas</h3>
+                        </div>
+                        <div className="space-y-2 text-gray-700">
                             <p className="flex justify-between">
                                 <span>Kas Masuk (Penjualan, Lain-Lain):</span>
-                                <span className="font-medium text-green-600">Rp {report.total_kas_masuk.toLocaleString('id-ID')}</span>
+                                <span className="font-medium text-green-600">{formatRupiah(report.total_kas_masuk)}</span>
                             </p>
                             <p className="flex justify-between">
                                 <span>Kas Keluar (Pembelian, Biaya, Gaji):</span>
-                                <span className="font-medium text-red-600">Rp {report.total_kas_keluar.toLocaleString('id-ID')}</span>
+                                <span className="font-medium text-red-600">{formatRupiah(report.total_kas_keluar)}</span>
                             </p>
-                            <div className="flex justify-between pt-2 mt-3 border-t">
-                                <span className="text-lg font-bold">Arus Kas Bersih:</span>
-                                <span className={`text-lg font-bold ${report.laba_rugi >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                                    Rp {report.laba_rugi.toLocaleString('id-ID')}
+                            <div className="flex justify-between pt-3 mt-4 border-t font-semibold">
+                                <span>Arus Kas Bersih:</span>
+                                <span className={`text-lg ${report.arus_kas >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                                    {formatRupiah(report.arus_kas)}
                                 </span>
                             </div>
                         </div>
                     </div>
                 </div>
-            }
-
+            )}
         </div>
-    )
+    );
 }

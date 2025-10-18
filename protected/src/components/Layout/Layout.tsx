@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Logo from "../../assets/Image/Logo.png";
 import {
   Home,
@@ -9,29 +9,42 @@ import {
   BarChart2,
   Layers,
   LogOut,
+  Moon,
+  Sun,
 } from "lucide-react";
 import axios from "axios";
+
+const getInitialTheme = (): "light" | "dark" => {
+  if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
+    return localStorage.getItem("theme") as "light" | "dark";
+  }
+  return "light";
+};
 
 const Layout: React.FC = () => {
   const location = useLocation();
   const nav = useNavigate();
   const apiUrl = import.meta.env.VITE_API_URL;
+  const [theme, setTheme] = useState<"light" | "dark">(getInitialTheme);
+
+  useEffect(() => {
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${apiUrl}/logout`, {},
-        {
-          headers: {
-            Authorization: true,
-          }
-        })
-      localStorage.removeItem('token');
-      nav('/login');
+      await axios.post(`${apiUrl}/logout`, {}, { headers: { Authorization: true } });
+      localStorage.removeItem("token");
+      nav("/login");
     } catch (error) {
-      console.error('Gagal logout', error);
-      nav('/login');
+      console.error("Gagal logout", error);
+      nav("/login");
     }
-  }
+  };
 
   const menuItems = [
     { path: "/dashboard/home", label: "Home", icon: <Home className="w-5 h-5" /> },
@@ -51,17 +64,27 @@ const Layout: React.FC = () => {
       >
         <div className="flex items-center space-x-3">
           <img src={Logo} className="h-8 rounded-lg" alt="Logo" />
-          <span className="text-xl font-semibold drop-shadow-sm">
-            KKP-ASTA
-          </span>
+          <span className="text-xl font-semibold drop-shadow-sm">KKP-ASTA</span>
         </div>
+
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-full hover:bg-white/20 transition-colors duration-200"
+          aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+        >
+          {theme === "light" ? (
+            <Moon className="w-6 h-6 text-white" />
+          ) : (
+            <Sun className="w-6 h-6 text-white" />
+          )}
+        </button>
       </nav>
 
       <aside
         id="logo-sidebar"
         className="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform 
-    -translate-x-full border-r border-white/20 sm:translate-x-0 backdrop-blur-lg shadow-md
-    bg-[var(--color-primary)]"
+        -translate-x-full border-r border-white/20 sm:translate-x-0 backdrop-blur-lg shadow-md
+        bg-[var(--color-primary)]"
         style={{ backgroundColor: "var(--color-primary)", color: "white" }}
         aria-label="Sidebar"
       >
@@ -80,11 +103,11 @@ const Layout: React.FC = () => {
                 ) : (
                   <Link
                     to={item.path}
-                    className={`flex items-center p-2 rounded-lg transition-all duration-200
-            ${location.pathname === item.path
+                    className={`flex items-center p-2 rounded-lg transition-all duration-200 ${
+                      location.pathname === item.path
                         ? "bg-white/30 text-white shadow-sm"
                         : "text-white hover:bg-white/20"
-                      }`}
+                    }`}
                   >
                     {item.icon}
                     <span className="ms-3">{item.label}</span>
@@ -93,11 +116,14 @@ const Layout: React.FC = () => {
               </li>
             ))}
           </ul>
-
         </div>
       </aside>
 
-      <div className="p-4 sm:ml-64">
+      <div
+        className={`p-4 sm:ml-64 min-h-screen transition-colors duration-300 ${
+          theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-white"
+        }`}
+      >
         <div className="p-4 border rounded-lg shadow-md glass-bg border-white/20 mt-14">
           <Outlet />
         </div>

@@ -43,7 +43,6 @@ export default function ItemForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ load data saat edit
   useEffect(() => {
     if (isEditing && currentItem) {
       setName(currentItem.item_name);
@@ -58,7 +57,6 @@ export default function ItemForm({
     }
   }, [currentItem, isEditing]);
 
-  // ✅ submit ke backend (pakai api dari kode kamu)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -102,7 +100,6 @@ export default function ItemForm({
       className="p-2 bg-transparent border border-gray-200 shadow-sm md:p-4 dark:border-gray-700 rounded-xl"
     >
       <div className="grid gap-6 mb-6 md:grid-cols-2">
-        {/* Nama Item */}
         <div>
           <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
             Nama Item
@@ -153,7 +150,6 @@ export default function ItemForm({
           </div>
         </div>
 
-        {/* Stok Awal (hanya add mode) */}
         {!isEditing && (
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -176,7 +172,6 @@ export default function ItemForm({
           </div>
         )}
 
-        {/* Checkbox trackable */}
         <div className="flex items-center mt-2 md:col-span-2">
           <input
             type="checkbox"
@@ -194,10 +189,8 @@ export default function ItemForm({
         </div>
       </div>
 
-      {/* Error Message */}
       {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
 
-      {/* Tombol aksi */}
       <div className="flex justify-end gap-3 pt-4 mt-6 border-t">
         <button
           type="button"
