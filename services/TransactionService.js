@@ -27,19 +27,30 @@ const TransactionService = {
 	create: async data => {
 		return knex.transaction(async trx => {
 			// simpan data transaksi
+			const typeRow = await trx('transaction_types').where({name: data.transaction_type}).first();
+
+			if (!typeRow) throw new Error('Tipe transaksi tidak ditemukan');
+
 			const [newTransaction] = await trx('transactions')
 				.insert({
 					user_id: data.user_id,
-					transaction_type: data.transaction_type,
+					transaction_type_id: typeRow.id,
 					description: data.description,
-					amount: data.amount,
+					amount: data.amount || 0,
 				})
 				.returning('*');
 
 			// catat pergerakan stok
 			if (data.items && data.items.length > 0) {
 				for (const item of data.items) {
-					const movementType = data.transaction_type === 'penjualan' ? 'out' : 'in';
+					let movementType;
+					if (data.transaction_type === 'penjualan' || data.transaction_type === 'pemakaian') {
+						movementType = 'out';
+					} else if (data.transaction_type === 'pembelian') {
+						movementType = 'in';
+					} else {
+						movementType = null;
+					}
 
 					await trx('stock_movements').insert({
 						item_id: item.id,
@@ -49,8 +60,10 @@ const TransactionService = {
 					});
 
 					// update stok
-					const updateQuantity = movementType === 'out' ? -item.quantity : item.quantity;
-					await trx('items').where({id: item.id}).increment('current_stock', updateQuantity);
+					if (movementType) {
+						const updateQuantity = movementType === 'out' ? -item.quantity : item.quantity;
+						await trx('items').where({id: item.id}).increment('current_stock', updateQuantity);
+					}
 				}
 			}
 

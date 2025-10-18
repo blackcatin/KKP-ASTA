@@ -34,11 +34,13 @@ exports.seed = async function(knex) {
 	// dummy tipe transaksi
 	const typeResults = await knex('transaction_types')
 		.insert([
-			{name: 'Penjualan', flow: 'masuk'},
-			{name: 'Pembelian', flow: 'keluar'},
-			{name: 'Biaya Operasional', flow: 'keluar'},
-			{name: 'Gaji', flow: 'keluar'},
-			{name: 'Pemasukan Lain', flow: 'masuk'},
+			{name: 'penjualan', flow: 'masuk'},
+			{name: 'pembelian', flow: 'keluar'},
+			{name: 'pemakaian', flow: 'keluar'},
+			{name: 'operasional', flow: 'keluar'},
+			{name: 'gaji', flow: 'keluar'},
+			{name: 'pajak', flow: 'keluar'},
+			{name: 'pemasukan', flow: 'masuk'},
 		])
 		.returning(['id', 'name']);
 
@@ -63,7 +65,7 @@ exports.seed = async function(knex) {
 	}, {});
 
 	// dummy item
-	const productNames = ['Beras', 'Mie', 'Gula', ''];
+	const productNames = ['Beras', 'Mie', 'Gula', 'Tepung'];
 	const operationalNames = ['Listrik Kantor', 'Langganan WiFi', 'Air Galon', 'Sewa Tempat'];
 
 	const initialItems = [];
@@ -96,24 +98,35 @@ exports.seed = async function(knex) {
 	// dummy transaction
 	const dummyTransactions = [];
 
-	for (let i = 0; i < 15; i++) {
-		const isItemBased = faker.datatype.boolean();
+	for (let i = 0; i < 20; i++) {
+		const transactionCategory = faker.helpers.arrayElement(['monetary', 'stock_only', 'expense']);
+		// const isItemBased = faker.datatype.boolean();
 
-		if (isItemBased) {
+		if (transactionCategory === 'monetary') {
 			// transaksi penjualan/pembelian
-			const typeName = faker.helpers.arrayElement(['Penjualan', 'Pembelian']);
+			const typeName = faker.helpers.arrayElement(['penjualan', 'pembelian']);
 			dummyTransactions.push({
 				user_id: owner.id, // dibuat oleh owner
 				transaction_type_id: typeMap[typeName],
 				description:
-					typeName === 'Penjualan' ? `Transaksi Jual #${i + 1}` : `Invoice Beli #${i + 1}`,
+					typeName === 'penjualan' ? `Transaksi Jual #${i + 1}` : `Invoice Beli #${i + 1}`,
 				amount: faker.number.float({min: 10000, max: 500000, precision: 0.01}),
 				nota_photo_url: faker.image.url(),
 				created_at: faker.date.past(),
 			});
+		} else if (transactionCategory === 'stock_only') {
+			// pemakaian stok
+			dummyTransactions.push({
+				user_id: owner.id,
+				transaction_type_id: typeMap['pemakaian'],
+				description: `Pemakaian item internal #${i + 1}`,
+				amount: 0, // nominal rupiah nol
+				nota_photo_url: '-',
+				created_at: faker.date.past(),
+			});
 		} else {
 			// transaksi biaya, gaji, dsb
-			const typeName = faker.helpers.arrayElement(['Biaya Operasional', 'Gaji', 'Pemasukan Lain']);
+			const typeName = faker.helpers.arrayElement(['operasional', 'gaji', 'pemasukan', 'pajak']);
 			dummyTransactions.push({
 				user_id: owner.id,
 				transaction_type_id: typeMap[typeName],

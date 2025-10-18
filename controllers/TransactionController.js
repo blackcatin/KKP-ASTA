@@ -7,8 +7,12 @@ const transactionService = require('../services/TransactionService');
 router.post('/', async (req, res) => {
 	const {user_id, transaction_type, amount} = req.body;
 
-	if (!user_id || !transaction_type || !amount) {
-		return res.status(400).jsno({message: 'Data transaksi tidak lengkap'});
+	if (!user_id || !transaction_type) {
+		return res.status(400).json({message: 'User dan tipe transaksi tidak lengkap'});
+	}
+
+	if (transaction_type !== 'pemakaian' && (amount === undefined || amount === null)) {
+		return res.status(400).json({message: 'Nominal transaksi wajib diisi'});
 	}
 
 	try {
