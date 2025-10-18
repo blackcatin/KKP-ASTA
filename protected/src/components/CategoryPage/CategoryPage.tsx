@@ -3,6 +3,7 @@ import Modal from "../Layout/Modal";
 import DeleteModal from "../Layout/DeleteModal";
 import CategoryForm from "./CategoryForm";
 
+
 interface Category {
     id: number;
     name: string;
@@ -16,7 +17,7 @@ export default function CategoryPage() {
     const [currentCat, setCurrentCat] = useState<Category | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isDeleteModaOpen, setIsDeleteOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteOpen] = useState(false);
     const [deleteError, setDeleteError] = useState<string | null>(null);
 
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -75,41 +76,6 @@ export default function CategoryPage() {
         setIsDeleteOpen(false);
 
         fetchCategories();
-    }
-
-    const executeDelete = async () => {
-        if (!currentCat) return;
-
-        const CatId = currentCat.id;
-        let isConflict = false;
-
-        setDeleteError(null);
-
-        try {
-            const response = await fetch(`${apiUrl}/categories/${CatId}`, {
-                method: 'DELETE'
-            });
-
-            const data = await response.json();
-
-            if (response.status === 409) {
-                isConflict = true;
-                setDeleteError(data.message);
-            } else if (!response.ok) {
-                setDeleteError(data.message || 'Gagal menghapus kategori');
-            }
-
-            if (response.ok) {
-                closeDeleteModal();
-                setCategoryList(prevList => prevList.filter(category => category.id !== currentCat.id));
-            }
-        } catch (error) {
-            console.error('Gagal terhubung ke server, coba lagi');
-        } finally {
-            if (isConflict) {
-                closeDeleteModal();
-            }
-        }
     }
 
     if (loading) return <div>Memuat daftar kategori...</div>
@@ -178,12 +144,14 @@ export default function CategoryPage() {
                 )}
             </Modal>
 
-            <Modal isOpen={isDeleteModaOpen} onClose={closeDeleteModal} title="Hapus Kategori">
+            <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal} title="Hapus Kategori">
                 {currentCat && (
                     <DeleteModal
+                        itemId={currentCat.id}
                         itemName={currentCat.name}
                         itemType="kategori"
-                        onDelete={executeDelete}
+                        endpoint="categories"
+                        onDelete={handleSuccess}
                         onCancel={closeDeleteModal}
                     />
                 )}

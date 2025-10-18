@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Edit, Trash2, ArrowUpDown, Plus, Search } from "lucide-react";
 import Modal from "../Layout/Modal";
-import AddStaffForm from "./AddStaffForm";
-import EditStaffForm from "./EditStaffForm";
-import DeleteStaff from "./DeleteStaff";
+import DeleteModal from "../Layout/DeleteModal";
+import StaffForm from "./StaffForm";
+import api from "../../api";
 
 interface User {
   id: number;
@@ -21,7 +21,7 @@ export default function StaffPage() {
   const [error, setError] = useState<string | null>(null);
   const [editModal, setEditModal] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [addModal, setAddModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("id");
@@ -29,26 +29,20 @@ export default function StaffPage() {
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
-    const fetchStaff = async () => {
-        try {
-            const response = await fetch(`${apiUrl}/users?role=staff`);
+  const fetchStaff = async () => {
+    try {
+      console.log(import.meta.env.VITE_API_URL);
 
-            if (!response.ok) {
-                throw new Error("Gagal menghubungkan dengan data staff");
-            }
-            const data = await response.json();
-            setStaffList(data.users);
-            setError(null);
-        } catch (error) {
-            if (error instanceof Error) {
-                setError(error.message);
-            } else {
-                setError("Error mengambil data staff");
-            }
-        } finally {
-            setLoading(false);
-        }
+      const response = await api.get(`${apiUrl}/users?role=staff`);
+
+      setStaffList(response.data.users);
+      setError(null);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Error mengambil data staff");
+    } finally {
+      setLoading(false);
     }
+  };
 
   useEffect(() => {
     fetchStaff();
@@ -71,7 +65,9 @@ export default function StaffPage() {
       return sortOrder === "asc" ? valA - valB : valB - valA;
     }
     if (typeof valA === "string" && typeof valB === "string") {
-      return sortOrder === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+      return sortOrder === "asc"
+        ? valA.localeCompare(valB)
+        : valB.localeCompare(valA);
     }
     return 0;
   });
@@ -100,28 +96,27 @@ export default function StaffPage() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-500">Error: {error}</div>;
-
   const SortIcon = ({ column }: { column: SortKey }) => (
     <ArrowUpDown
       size={16}
-      className={`inline-block ml-1 transition-transform ${
-        sortKey === column
-          ? sortOrder === "asc"
-            ? "rotate-180 text-blue-600"
-            : "text-blue-600"
-          : "text-gray-400"
-      }`}
+      className={`inline-block ml-1 transition-transform ${sortKey === column
+        ? sortOrder === "asc"
+          ? "rotate-180 text-blue-600"
+          : "text-blue-600"
+        : "text-gray-400"
+        }`}
     />
   );
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-red-500">Error: {error}</div>;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Kelola Akun Pengguna</h2>
         <button
-          onClick={() => setModalOpen(true)}
+          onClick={() => setAddModal(true)}
           className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90"
           style={{ backgroundColor: "var(--color-secondary)", color: "white" }}
         >
@@ -166,12 +161,12 @@ export default function StaffPage() {
           <tbody className="divide-y divide-gray-200">
             {filteredStaff.length > 0 ? (
               filteredStaff.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50 transition">
+                <tr key={user.id} className="transition hover:bg-gray-50">
                   <td className="px-6 py-4">{user.id}</td>
                   <td className="px-6 py-4">{user.full_name}</td>
                   <td className="px-6 py-4">{user.email}</td>
                   <td className="px-6 py-4">{user.role}</td>
-                  <td className="px-6 py-4 flex items-center gap-3">
+                  <td className="flex items-center gap-3 px-6 py-4">
                     <button
                       onClick={() => {
                         setCurrentUser(user);
@@ -206,25 +201,55 @@ export default function StaffPage() {
         </table>
       </div>
 
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Tambah akun staff">
-        <AddStaffForm onSuccess={() => { setModalOpen(false); fetchStaff(); }} onCancel={() => setModalOpen(false)} />
+      {/* Modal Tambah */}
+      <Modal
+        isOpen={addModal}
+        onClose={() => setAddModal(false)}
+        title="Tambah akun staff"
+      >
+        <StaffForm
+          onSuccess={() => {
+            setAddModal(false);
+            fetchStaff();
+          }}
+          onCancel={() => setAddModal(false)}
+        />
       </Modal>
 
-      <Modal isOpen={editModal} onClose={() => setEditModal(false)} title={`Edit akun: ${currentUser?.full_name}`}>
+      {/* Modal Edit */}
+      <Modal
+        isOpen={editModal}
+        onClose={() => setEditModal(false)}
+        title={`Edit akun: ${currentUser?.full_name}`}
+      >
         {currentUser && (
-          <EditStaffForm
+          <StaffForm
             currentUser={currentUser}
-            onSuccess={() => { setEditModal(false); fetchStaff(); }}
+            onSuccess={() => {
+              setEditModal(false);
+              fetchStaff();
+            }}
             onCancel={() => setEditModal(false)}
           />
         )}
       </Modal>
 
-      <Modal isOpen={deleteModal} onClose={() => setDeleteModal(false)} title="Konfirmasi Hapus">
+      {/* Modal Delete */}
+      <Modal
+        isOpen={deleteModal}
+        onClose={() => setDeleteModal(false)}
+        title="Konfirmasi Penghapusan"
+      >
         {currentUser && (
-          <DeleteStaff
-            user={currentUser}
-            onDelete={executeDelete}
+          <DeleteModal
+            itemId={currentUser.id}
+            itemName={currentUser.full_name}
+            itemType="user"
+            endpoint="users"
+            onDelete={() => {
+              executeDelete();
+              fetchStaff();
+            }}
             onCancel={() => setDeleteModal(false)}
           />
         )}

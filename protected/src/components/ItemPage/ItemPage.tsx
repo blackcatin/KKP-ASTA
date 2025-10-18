@@ -47,9 +47,7 @@ export default function ItemPage() {
       setItemList(data);
       setFilteredList(data);
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message || "Server error");
-      }
+      if (error instanceof Error) setError(error.message || "Server error");
     } finally {
       setLoading(false);
     }
@@ -62,9 +60,7 @@ export default function ItemPage() {
       const data = await response.json();
       setMasterCategories(data);
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message || "Server error");
-      }
+      if (error instanceof Error) setError(error.message || "Server error");
     } finally {
       setLoading(false);
     }
@@ -74,7 +70,6 @@ export default function ItemPage() {
     fetchItems();
     fetchCategories();
   }, []);
-
 
   useEffect(() => {
     const filtered = itemList.filter((item) =>
@@ -139,19 +134,17 @@ export default function ItemPage() {
   const openAddModal = () => setIsAddModalOpen(true);
   const closeAddModal = () => setIsAddModalOpen(false);
 
-    const openEditModal = (item: Item) => {
-        setCurrentItem(item);
-        setIsEditModalOpen(true);
-    }
+  const openEditModal = (item: Item) => {
+    setCurrentItem(item);
+    setIsEditModalOpen(true);
+  };
 
-
-    const handleSucces = () => {
-        setIsAddModalOpen(false);
-        setIsEditModalOpen(false);
-        closeDeleteModal();
-
-        fetchItems();
-    }
+  const handleSuccess = () => {
+    setIsAddModalOpen(false);
+    setIsEditModalOpen(false);
+    closeDeleteModal();
+    fetchItems();
+  };
 
   const executeDelete = async () => {
     if (!currentItem) return;
@@ -184,13 +177,12 @@ export default function ItemPage() {
   const SortIcon = ({ column }: { column: SortKey }) => (
     <ArrowUpDown
       size={16}
-      className={`inline-block ml-1 transition-transform ${
-        sortKey === column
-          ? sortOrder === "asc"
-            ? "rotate-180 text-blue-600"
-            : "text-blue-600"
-          : "text-gray-400"
-      }`}
+      className={`inline-block ml-1 transition-transform ${sortKey === column
+        ? sortOrder === "asc"
+          ? "rotate-180 text-blue-600"
+          : "text-blue-600"
+        : "text-gray-400"
+        }`}
     />
   );
 
@@ -199,28 +191,27 @@ export default function ItemPage() {
       <h2 className="mb-6 text-2xl font-bold">Manajemen Stok & Item</h2>
 
       <div className="p-6 bg-white rounded-lg shadow">
-        
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
+        <div className="flex flex-col gap-2 mb-4 md:flex-row md:items-center md:justify-between">
           <input
             type="text"
             placeholder="Cari item..."
-            className="
-                px-3 py-2 border border-gray-300 rounded-lg 
-                focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary) 
-            "
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          />
           <button
             onClick={openAddModal}
-            className="px-4 py-2 text-white  rounded-lg hover:bg-blue-700 flex items-center gap-2"
-            style={{ backgroundColor: "var(--color-secondary)", color:"white" }}
+            className="flex items-center gap-2 px-4 py-2 text-white rounded-lg hover:bg-blue-700"
+            style={{
+              backgroundColor: "var(--color-secondary)",
+              color: "white",
+            }}
           >
             + Tambah Item
           </button>
         </div>
 
-        <div className="relative overflow-x-auto rounded-lg border border-gray-200">
+        <div className="relative overflow-x-auto border border-gray-200 rounded-lg">
           <table className="w-full text-sm text-left text-gray-600">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50">
               <tr>
@@ -242,17 +233,17 @@ export default function ItemPage() {
                 </th>
                 <th
                   onClick={() => handleSort("current_stock")}
-                  className="px-6 py-3 cursor-pointer text-center hover:bg-gray-100"
+                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-100"
                 >
-                  <div className="flex justify-center items-center">
+                  <div className="flex items-center justify-center">
                     Stok <SortIcon column="current_stock" />
                   </div>
                 </th>
                 <th
                   onClick={() => handleSort("is_trackable")}
-                  className="px-6 py-3 cursor-pointer text-center hover:bg-gray-100"
+                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-100"
                 >
-                  <div className="flex justify-center items-center">
+                  <div className="flex items-center justify-center">
                     Terkendali <SortIcon column="is_trackable" />
                   </div>
                 </th>
@@ -264,7 +255,7 @@ export default function ItemPage() {
                 currentData.map((item) => (
                   <tr
                     key={item.id}
-                    className="bg-white border-b hover:bg-gray-50 transition"
+                    className="transition bg-white border-b hover:bg-gray-50"
                   >
                     <td className="px-6 py-4 font-medium text-gray-900">
                       {item.item_name}
@@ -275,11 +266,10 @@ export default function ItemPage() {
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span
-                        className={`px-2 inline-flex text-xs font-semibold rounded-full ${
-                          item.is_trackable
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
+                        className={`px-2 inline-flex text-xs font-semibold rounded-full ${item.is_trackable
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                          }`}
                       >
                         {item.is_trackable ? "Ya" : "Tidak"}
                       </span>
@@ -306,7 +296,7 @@ export default function ItemPage() {
                 <tr>
                   <td
                     colSpan={5}
-                    className="text-center py-6 text-gray-500 italic"
+                    className="py-6 italic text-center text-gray-500"
                   >
                     Tidak ada item ditemukan.
                   </td>
@@ -316,7 +306,7 @@ export default function ItemPage() {
           </table>
         </div>
 
-        <div className="flex justify-between items-center mt-4">
+        <div className="flex items-center justify-between mt-4">
           <p className="text-sm text-gray-600">
             Halaman {currentPage} dari {totalPages}
           </p>
@@ -324,14 +314,14 @@ export default function ItemPage() {
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 border rounded-md text-sm disabled:opacity-50"
+              className="px-3 py-1 text-sm border rounded-md disabled:opacity-50"
             >
               Sebelumnya
             </button>
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 border rounded-md text-sm disabled:opacity-50"
+              className="px-3 py-1 text-sm border rounded-md disabled:opacity-50"
             >
               Berikutnya
             </button>
@@ -346,35 +336,35 @@ export default function ItemPage() {
       >
         {currentItem && (
           <DeleteModal
+            itemId={currentItem.id}
             itemName={currentItem.item_name}
             itemType="item inventaris"
-            onDelete={executeDelete}
+            endpoint="items"
+            onDelete={handleSuccess}
             onCancel={closeDeleteModal}
           />
         )}
       </Modal>
 
-            <Modal isOpen={isEditModalOpen} onClose={handleSucces} title="Edit Item">
-                {currentItem && (
-                    <ItemForm
-                        currentItem={currentItem}
-                        masterCategories={masterCategories}
-                        onSuccess={handleSucces}
-                        onCancel={closeDeleteModal}
-                    />
-                )}
-            </Modal>
+      <Modal isOpen={isEditModalOpen} onClose={handleSuccess} title="Edit Item">
+        {currentItem && (
+          <ItemForm
+            currentItem={currentItem}
+            masterCategories={masterCategories}
+            onSuccess={handleSuccess}
+            onCancel={closeDeleteModal}
+          />
+        )}
+      </Modal>
 
-            <Modal isOpen={isAddModalOpen} onClose={handleSucces} title="Add Item">
-                <ItemForm
-                    currentItem={null}
-                    masterCategories={masterCategories}
-                    onSuccess={handleSucces}
-                    onCancel={closeAddModal}
-                />
-            </Modal>
-
-
-        </div>
-    )
+      <Modal isOpen={isAddModalOpen} onClose={handleSuccess} title="Add Item">
+        <ItemForm
+          currentItem={null}
+          masterCategories={masterCategories}
+          onSuccess={handleSuccess}
+          onCancel={closeAddModal}
+        />
+      </Modal>
+    </div>
+  );
 }

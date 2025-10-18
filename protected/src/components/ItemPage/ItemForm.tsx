@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import api from "../../api";
 import {
   Package,
   Boxes,
@@ -28,15 +29,21 @@ interface ItemProps {
   onCancel: () => void;
 }
 
-export default function ItemForm({ currentItem, masterCategories, onSuccess, onCancel }: ItemProps) {
-    const isEditing = !!currentItem;
-    const [name, setName] = useState('');
-    const [currentStock, setCurrentStock] = useState<number | string>('');
-    const [categoryId, setCategoryId] = useState<number | string>('');
-    const [isTrackable, setIsTrackable] = useState(true);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+export default function ItemForm({
+  currentItem,
+  masterCategories,
+  onSuccess,
+  onCancel,
+}: ItemProps) {
+  const isEditing = !!currentItem;
+  const [name, setName] = useState("");
+  const [currentStock, setCurrentStock] = useState<number | string>("");
+  const [categoryId, setCategoryId] = useState<number | string>("");
+  const [isTrackable, setIsTrackable] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  // ✅ load data saat edit
   useEffect(() => {
     if (isEditing && currentItem) {
       setName(currentItem.item_name);
@@ -51,50 +58,51 @@ export default function ItemForm({ currentItem, masterCategories, onSuccess, onC
     }
   }, [currentItem, isEditing]);
 
+  // ✅ submit ke backend (pakai api dari kode kamu)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-        const finalStock = (typeof currentStock === 'string') ? parseInt(currentStock) || 0 : currentStock;
-        const method = isEditing ? 'PUT' : 'POST';
-        const url = `http://localhost:3000/api/items${isEditing ? `/${currentItem?.id}` : ''}`;
+    const finalCategoryId = typeof categoryId === "string" ? null : categoryId;
+    if (!name || !finalCategoryId) {
+      setError("Nama item dan Kategori wajib diisi.");
+      setLoading(false);
+      return;
+    }
 
-        const payload = {
-            item_name: name,
-            category_id: typeof categoryId === 'string' ? null : categoryId,
-            current_stock: isEditing ? currentItem?.current_stock : finalStock,
-            is_trackable: isTrackable,
-            ...(!isEditing && { current_stock: parseInt(currentStock as string) || 0 }),
-        };
+    const payload = {
+      item_name: name,
+      category_id: finalCategoryId,
+      current_stock: isEditing
+        ? currentItem?.current_stock
+        : parseInt(currentStock as string) || 0,
+      is_trackable: isTrackable,
+    };
 
     try {
-      const response = await fetch(url, {
-        method: method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Gagal menyimpan item')
-            }
-            onSuccess();
-        } catch (error) {
-            if (error instanceof Error) {
-                setError(error.message || 'Server error');
-            }
-        } finally {
-            setLoading(false);
-        }
+      if (isEditing && currentItem?.id) {
+        await api.put(`/items/${currentItem.id}`, payload);
+      } else {
+        await api.post(`/items`, payload);
+      }
+      onSuccess();
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message || "Server error");
+      }
+    } finally {
+      setLoading(false);
     }
+  };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-2 md:p-4 bg-transparent border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm"
+      className="p-2 bg-transparent border border-gray-200 shadow-sm md:p-4 dark:border-gray-700 rounded-xl"
     >
       <div className="grid gap-6 mb-6 md:grid-cols-2">
+        {/* Nama Item */}
         <div>
           <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
             Nama Item
@@ -115,6 +123,7 @@ export default function ItemForm({ currentItem, masterCategories, onSuccess, onC
           </div>
         </div>
 
+        {/* Kategori */}
         <div>
           <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
             Kategori
@@ -123,7 +132,9 @@ export default function ItemForm({ currentItem, masterCategories, onSuccess, onC
             <Layers className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
             <select
               value={categoryId}
-              onChange={(e) => setCategoryId(parseInt(e.target.value) || "")}
+              onChange={(e) =>
+                setCategoryId(parseInt(e.target.value) || "")
+              }
               required
               className="pl-10 bg-transparent border border-gray-300 text-gray-900 text-sm 
               rounded-lg focus:ring-[var(--secondary)] focus:border-[var(--secondary)] 
@@ -142,6 +153,7 @@ export default function ItemForm({ currentItem, masterCategories, onSuccess, onC
           </div>
         </div>
 
+        {/* Stok Awal (hanya add mode) */}
         {!isEditing && (
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -164,6 +176,7 @@ export default function ItemForm({ currentItem, masterCategories, onSuccess, onC
           </div>
         )}
 
+        {/* Checkbox trackable */}
         <div className="flex items-center mt-2 md:col-span-2">
           <input
             type="checkbox"
@@ -181,39 +194,39 @@ export default function ItemForm({ currentItem, masterCategories, onSuccess, onC
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
+      {/* Error Message */}
+      {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
 
-      <div className="flex justify-end gap-3 mt-6 border-t pt-4">
+      {/* Tombol aksi */}
+      <div className="flex justify-end gap-3 pt-4 mt-6 border-t">
         <button
           type="button"
           onClick={onCancel}
-          className="flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 
-          rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-400 transition-colors duration-150"
-           style={{ color:"white" }}
+          className="flex items-center px-4 py-2 text-sm font-medium text-white transition-colors duration-150 bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-400"
+          style={{ color: "white" }}
         >
           <X className="w-4 h-4 mr-2" /> Batal
         </button>
 
         <button
-        type="submit"
-        disabled={loading}
-        className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium 
-        text-white bg-[var(--secondary)] hover:brightness-90 active:scale-[0.98]
-        rounded-lg shadow-md focus:ring-2 focus:ring-offset-1 
-        focus:ring-[var(--secondary)] transition-all duration-150 disabled:opacity-70"
-        style={{ backgroundColor: "var(--color-secondary)", color:"white" }}
+          type="submit"
+          disabled={loading}
+          className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium 
+          text-white bg-[var(--secondary)] hover:brightness-90 active:scale-[0.98]
+          rounded-lg shadow-md focus:ring-2 focus:ring-offset-1 
+          focus:ring-[var(--secondary)] transition-all duration-150 disabled:opacity-70"
+          style={{ backgroundColor: "var(--color-secondary)", color: "white" }}
         >
-        {loading ? (
+          {loading ? (
             <>
-            <Loader2 className="w-4 h-4 animate-spin" /> Menyimpan...
+              <Loader2 className="w-4 h-4 animate-spin" /> Menyimpan...
             </>
-        ) : (
+          ) : (
             <>
-            <Save className="w-4 h-4" /> {isEditing ? "Perbarui" : "Simpan"}
+              <Save className="w-4 h-4" /> {isEditing ? "Perbarui" : "Simpan"}
             </>
-        )}
+          )}
         </button>
-
       </div>
     </form>
   );
