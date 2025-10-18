@@ -333,7 +333,6 @@ export default function TransactionPage() {
                        rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           />
         </div>
-=======
         {(transactionType === 'biaya_operasional' ||
           transactionType === 'gaji' ||
           transactionType === 'pajak') && (
@@ -372,27 +371,18 @@ export default function TransactionPage() {
         <div className="flex justify-end gap-3">
           <button
             type="button"
-            onClick={handleResetForm} 
+            onClick={handleResetForm}
             className="flex items-center px-4 py-2 text-sm font-medium text-white transition-colors duration-150 bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-400"
-            style={{ color: "white" }}
           >
             <X className="w-4 h-4 mr-2" /> Batal
-            className="flex items-center px-4 py-2 text-sm font-medium text-white transition-colors duration-150 bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-400"
-            style={{ color: "white" }}
-          >
-            X Batal
           </button>
 
           <button
             type="submit"
             disabled={loading}
             className="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white 
-                       bg-[var(--secondary)] hover:opacity-90 rounded-lg 
-                       focus:ring-2 focus:ring-[var(--secondary)] disabled:opacity-70"
-                      bg-[var(--secondary)] hover:opacity-90 rounded-lg 
-                      focus:ring-2 focus:ring-[var(--secondary)] disabled:opacity-70"
->
-            style={{ backgroundColor: "var(--color-secondary)", color: "white" }}
+                       bg-[var(--color-secondary)] hover:opacity-90 rounded-lg 
+                       focus:ring-2 focus:ring-[var(--color-secondary)] disabled:opacity-70"
           >
             {loading ? (
               <>
