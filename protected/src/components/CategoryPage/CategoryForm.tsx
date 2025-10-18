@@ -25,7 +25,6 @@ export default function CategoryForm({ currentCat, onSuccess, onCancel }: CatPro
             setName(currentCat.name);
             setDescription(currentCat.description || '');
         } else {
-            // add mode
             setName('');
             setDescription('');
         }
