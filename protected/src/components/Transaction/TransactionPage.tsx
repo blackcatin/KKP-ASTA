@@ -82,16 +82,17 @@ export default function TransactionPage() {
 
     const finalAmount = transactionType === 'pemakaian' ? null : calculateTotalAmount();
     const finalItems =
-      transactionType === "penjualan" || transactionType === "pembelian"
+      transactionType === "penjualan" || transactionType === "pembelian" || transactionType === 'pemakaian'
         ? items.filter((it) => it.itemId !== null)
         : [];
+
+    console.log(finalItems, 'p');
 
     if (
       (transactionType === "penjualan" || transactionType === "pembelian") &&
       finalItems.length === 0
     ) {
       setError("Harap tambahkan minimal 1 item");
-      return;
     }
 
     const payload = {
@@ -101,6 +102,8 @@ export default function TransactionPage() {
       amount: finalAmount,
       items: finalItems,
     };
+
+    console.log(payload.items);
 
     try {
       setLoading(true);
@@ -115,7 +118,7 @@ export default function TransactionPage() {
         throw new Error(errorData.message || "Gagal mencatat transaksi");
       }
 
-      alert("Transaksi berhasil dicatat!");
+      // alert("Transaksi berhasil dicatat!");
       setItems([{ itemId: null, quantity: 1 }]);
       setDescription("");
       setAmount("");
@@ -310,7 +313,7 @@ export default function TransactionPage() {
               <PlusCircle className="w-4 h-4" /> Tambah item
             </button>
           </div>
-        )};
+        )}
 
         {(transactionType === 'biaya_operasional' ||
           transactionType === 'gaji' ||

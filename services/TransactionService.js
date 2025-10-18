@@ -53,7 +53,7 @@ const TransactionService = {
 					}
 
 					await trx('stock_movements').insert({
-						item_id: item.id,
+						item_id: item.itemId,
 						transaction_id: newTransaction.id,
 						movement_type: movementType,
 						quantity: item.quantity,
@@ -62,7 +62,7 @@ const TransactionService = {
 					// update stok
 					if (movementType) {
 						const updateQuantity = movementType === 'out' ? -item.quantity : item.quantity;
-						await trx('items').where({id: item.id}).increment('current_stock', updateQuantity);
+						await trx('items').where({id: item.itemId}).increment('current_stock', updateQuantity);
 					}
 				}
 			}
