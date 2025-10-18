@@ -3,6 +3,7 @@ import { Edit, Trash2, ArrowUpDown, Plus, Search } from "lucide-react";
 import Modal from "../Layout/Modal";
 import DeleteModal from "../Layout/DeleteModal";
 import StaffForm from "./StaffForm";
+import api from "../../api";
 
 interface User {
   id: number;
@@ -30,11 +31,11 @@ export default function StaffPage() {
 
   const fetchStaff = async () => {
     try {
-      const response = await fetch(`${apiUrl}/users?role=staff`);
-      if (!response.ok) throw new Error("Gagal menghubungkan dengan data staff");
+      console.log(import.meta.env.VITE_API_URL);
 
-      const data = await response.json();
-      setStaffList(data.users);
+      const response = await api.get(`${apiUrl}/users?role=staff`);
+
+      setStaffList(response.data.users);
       setError(null);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Error mengambil data staff");
