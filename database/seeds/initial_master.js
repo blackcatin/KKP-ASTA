@@ -36,6 +36,7 @@ exports.seed = async function(knex) {
 		.insert([
 			{name: 'Penjualan', flow: 'masuk'},
 			{name: 'Pembelian', flow: 'keluar'},
+			{name: 'Pemakaian', flow: 'keluar'},
 			{name: 'Biaya Operasional', flow: 'keluar'},
 			{name: 'Gaji', flow: 'keluar'},
 			{name: 'Pemasukan Lain', flow: 'masuk'},
@@ -63,7 +64,7 @@ exports.seed = async function(knex) {
 	}, {});
 
 	// dummy item
-	const productNames = ['Beras', 'Mie', 'Gula', ''];
+	const productNames = ['Beras', 'Mie', 'Gula', 'Tepung'];
 	const operationalNames = ['Listrik Kantor', 'Langganan WiFi', 'Air Galon', 'Sewa Tempat'];
 
 	const initialItems = [];
@@ -96,10 +97,11 @@ exports.seed = async function(knex) {
 	// dummy transaction
 	const dummyTransactions = [];
 
-	for (let i = 0; i < 15; i++) {
-		const isItemBased = faker.datatype.boolean();
+	for (let i = 0; i < 20; i++) {
+		const transactionCategory = faker.helpers.arrayElement(['monetary', 'stock_only', 'expense']);
+		// const isItemBased = faker.datatype.boolean();
 
-		if (isItemBased) {
+		if (transactionCategory === 'monetary') {
 			// transaksi penjualan/pembelian
 			const typeName = faker.helpers.arrayElement(['Penjualan', 'Pembelian']);
 			dummyTransactions.push({
@@ -109,6 +111,16 @@ exports.seed = async function(knex) {
 					typeName === 'Penjualan' ? `Transaksi Jual #${i + 1}` : `Invoice Beli #${i + 1}`,
 				amount: faker.number.float({min: 10000, max: 500000, precision: 0.01}),
 				nota_photo_url: faker.image.url(),
+				created_at: faker.date.past(),
+			});
+		} else if (transactionCategory === 'stock_only') {
+			// pemakaian stok
+			dummyTransactions.push({
+				user_id: owner.id,
+				transaction_type_id: typeMap['Pemakaian'],
+				description: `Pemakaian item internal #${i + 1}`,
+				amount: 0, // nominal rupiah nol
+				nota_photo_url: '-',
 				created_at: faker.date.past(),
 			});
 		} else {
