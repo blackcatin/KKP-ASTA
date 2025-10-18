@@ -249,7 +249,7 @@ export default function TransactionPage() {
                 />
               </div>
             </div>
-          )};
+          )}
 
         {(transactionType === 'pemakaian') && (
           <div className="p-4 border border-gray-200 rounded-lg bg-gray-50">
@@ -318,7 +318,7 @@ export default function TransactionPage() {
               <PlusCircle className="w-4 h-4" /> Tambah item
             </button>
           </div>
-        )};
+        )}
 
         <div>
           <label className="block mb-2 text-sm font-medium text-gray-700">
@@ -373,6 +373,7 @@ export default function TransactionPage() {
             type="button"
             onClick={handleResetForm}
             className="flex items-center px-4 py-2 text-sm font-medium text-white transition-colors duration-150 bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-400"
+            style={{color: "white"}}
           >
             <X className="w-4 h-4 mr-2" /> Batal
           </button>
@@ -383,6 +384,7 @@ export default function TransactionPage() {
             className="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white 
                        bg-[var(--color-secondary)] hover:opacity-90 rounded-lg 
                        focus:ring-2 focus:ring-[var(--color-secondary)] disabled:opacity-70"
+            style={{color: "white"}}
           >
             {loading ? (
               <>
