@@ -2,10 +2,11 @@ import { BrowserRouter as Router, Routes, Route, BrowserRouter, Navigate } from 
 import Login from './components/Auth/Login'
 import Layout from './components/Layout/Layout';
 import StaffPage from './components/Staff/StaffPage';
-import TransactionPage from './components/Transaction/TransactionPage';
+import TransactionPage from './components/Transaction/TransactionForm';
 import ReportPage from './components/ReportPage/ReportPage';
 import ItemPage from './components/ItemPage/ItemPage';
 import CategoryPage from './components/CategoryPage/CategoryPage';
+import TransactionHistory from './components/Transaction/TransactionHistory';
 
 function App() {
   return (
@@ -15,7 +16,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Layout />}>
           <Route path="staff" element={<StaffPage />} />
-          <Route path="transaction" element={<TransactionPage />} />
+          <Route path="transaction" element={<TransactionHistory />} />
           <Route path="reports" element={<ReportPage />} />
           <Route path="categories" element={<CategoryPage />} />
           <Route path="items" element={<ItemPage />} />
