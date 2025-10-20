@@ -146,31 +146,6 @@ export default function ItemPage() {
     fetchItems();
   };
 
-  const executeDelete = async () => {
-    if (!currentItem) return;
-    const itemId = currentItem.id;
-
-    try {
-      const response = await fetch(`${apiUrl}/items/${itemId}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        closeDeleteModal();
-        setItemList((prev) =>
-          prev.filter((item) => item.id !== currentItem.id)
-        );
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message);
-        throw new Error("Gagal menghapus item");
-      }
-    } catch (error) {
-      console.error("Gagal menghapus item", error);
-      setError("Server error");
-    }
-  };
-
   if (loading) return <div>Memuat daftar stok...</div>;
   if (error) return <div className="text-red-600">Error: {error}</div>;
 

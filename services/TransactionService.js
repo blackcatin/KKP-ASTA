@@ -7,13 +7,20 @@ const TransactionService = {
 	// Fungsi untuk mendapatkan semua data
 	getAll: async filters => {
 		const query = knex('transactions')
-			.select('transactions.*', 'users.full_name as user__full_name')
-			.join('users', 'transactions.user_id', '=', 'users.id');
+			.join('transaction_types', 'transactions.transaction_type_id', 'transaction_types.id')
+			.select(
+				'transactions.id',
+				'transactions.description',
+				'transactions.amount',
+				'transaction_types.name as type_name',
+				'transaction_types.flow as type_flow',
+				'transactions.created_at'
+			)
+			.orderBy('transactions.created_at', 'desc');
+
 		if (filters.start_date && filters.end_date) {
 			query.whereBetween('transactions.created_at', [filters.start_date, filters.end_date]);
 		}
-
-		query.orderBy('transactions.created_at', 'desc');
 
 		return query;
 	},
