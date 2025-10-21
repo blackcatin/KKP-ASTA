@@ -81,14 +81,6 @@ export default function TransactionForm({ currentTransaction, onSuccess, onCance
     setItems(newItems);
   };
 
-  const handleResetForm = () => {
-    setTransactionType("penjualan");
-    setDescription("");
-    setAmount("");
-    setItems([{ itemId: null, quantity: 1 }]);
-    setError(null);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Data transaksi siap dikirim", {
@@ -145,8 +137,8 @@ export default function TransactionForm({ currentTransaction, onSuccess, onCance
 
       setItems([{ itemId: null, quantity: 1 }]);
       onSuccess();
-    } catch (error) {
-      if (error instanceof Error) setError(error.message || "Server error");
+    } catch (error: any) {
+      setError(error.response?.data?.message || error.message || "Server error");
     } finally {
       setLoading(false);
     }
@@ -195,7 +187,7 @@ export default function TransactionForm({ currentTransaction, onSuccess, onCance
                       )
                     }
                     className="flex-1 bg-white border border-gray-300 text-gray-900 text-sm 
-                               rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+                                rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
                   >
                     <option value="" disabled>
                       Pilih item
@@ -345,6 +337,22 @@ export default function TransactionForm({ currentTransaction, onSuccess, onCance
             />
           </div>
         )}
+
+      {(transactionType === 'pemasukan') && (
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-700">
+            Jumlah Total (Rp)
+          </label>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(parseInt(e.target.value))}
+            placeholder="Contoh: 50000"
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm 
+                      rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          />
+        </div>
+      )}
 
       <div>
         <label className="block mb-2 text-sm font-medium text-gray-700">

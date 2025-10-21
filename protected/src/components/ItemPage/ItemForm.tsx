@@ -85,10 +85,8 @@ export default function ItemForm({
         await api.post(`/items`, payload);
       }
       onSuccess();
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message || "Server error");
-      }
+    } catch (error: any) {
+      setError(error.response?.data?.message || error.message || "Server error");
     } finally {
       setLoading(false);
     }

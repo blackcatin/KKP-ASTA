@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import api from "../../api";
-import { Tag, FileText, Loader2,  X, Save, } from "lucide-react";
+import { Tag, FileText, Loader2, X, Save, } from "lucide-react";
 
 interface Category {
   id: number;
@@ -45,10 +45,8 @@ export default function CategoryForm({ currentCat, onSuccess, onCancel }: CatPro
         await api.post(`/categories`, payload);
       }
       onSuccess();
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message || "Server error");
-      }
+    } catch (error: any) {
+      setError(error.response?.data?.message || error.message || "Server error");
     } finally {
       setLoading(false);
     }

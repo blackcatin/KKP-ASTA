@@ -48,6 +48,10 @@ exports.authorizeRole = requiredRole => (req, res, next) => {
 	if (req.user && req.user.role === requiredRole) {
 		next();
 	} else {
-		res.status(403).json({message: 'Akses ditolak'});
+		res.status(403).json({
+			error: true,
+			message: `Akses ditolak: hanya ${requiredRole} yang bisa melakukan aksi ini.`,
+			yourRole: req.user ? req.user.role : 'tidak terdeteksi',
+		});
 	}
 };

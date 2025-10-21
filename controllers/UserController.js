@@ -4,6 +4,7 @@ const express = require('express');
 const UserService = require('../services/UserService');
 const {authMiddleware, authorizeRole} = require('../middleware/auth');
 const router = express.Router();
+const knex = require('../config/database');
 const jwt = require('jsonwebtoken');
 
 // login
@@ -47,7 +48,7 @@ router.post('/login', async (req, res) => {
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		});
 
-		return res.status(200).json({message: 'Login Berhasil', user, accessToken});
+		return res.status(200).json({message: 'Login Berhasil', user, accessToken, role: user.role});
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({message: 'Error server'});

@@ -40,8 +40,10 @@ export default function Login() {
       console.log(data);
 
       if (response.ok) {
-        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("token", data.accessToken);
         localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("role", data.role);
+        console.log("User role:", data.user.role);
         nav("/dashboard");
       } else {
         setError(data.message || "Login gagal, silakan coba lagi.");
@@ -56,9 +58,8 @@ export default function Login() {
 
   return (
     <div
-      className={`flex flex-col md:flex-row items-center justify-center w-screen min-h-screen transition-all duration-500 relative ${
-        theme === "dark" ? "bg-[#0f172a]" : "bg-cover bg-center"
-      }`}
+      className={`flex flex-col md:flex-row items-center justify-center w-screen min-h-screen transition-all duration-500 relative ${theme === "dark" ? "bg-[#0f172a]" : "bg-cover bg-center"
+        }`}
       style={{
         backgroundImage: theme === "light" ? `url(${Background})` : "none",
       }}
@@ -66,13 +67,13 @@ export default function Login() {
       <button
         type="button"
         onClick={toggleTheme}
-        className="absolute top-6 right-6 p-2 rounded-full z-10 transition text-white bg-black/50 hover:bg-black/60 dark:text-gray-700 dark:bg-white/90 dark:hover:bg-white"
+        className="absolute z-10 p-2 text-white transition rounded-full top-6 right-6 bg-black/50 hover:bg-black/60 dark:text-gray-700 dark:bg-white/90 dark:hover:bg-white"
         aria-label={theme === "light" ? "Ubah ke mode gelap" : "Ubah ke mode terang"}
       >
         {theme === "light" ? <Moon size={22} /> : <Sun size={22} />}
       </button>
 
-      <div className="hidden md:flex w-1/2 h-screen items-center justify-center">
+      <div className="items-center justify-center hidden w-1/2 h-screen md:flex">
         <img
           src={theme === "dark" ? VectorDark : VectorLight}
           alt="Vector Illustration"
@@ -80,7 +81,7 @@ export default function Login() {
         />
       </div>
 
-      <div className="flex justify-start w-full md:w-1/2 h-screen items-center p-4 md:pl-24 lg:pl-32">
+      <div className="flex items-center justify-start w-full h-screen p-4 md:w-1/2 md:pl-24 lg:pl-32">
         <div className="w-full max-w-md p-8 m-6 bg-[var(--color-secondary)] text-white dark:bg-white dark:text-gray-800 bg-opacity-95 backdrop-blur-md rounded-2xl shadow-2xl border border-transparent dark:border-gray-200 transition-all duration-500">
           <div className="flex flex-col items-center mb-6">
             <img src={Logo} alt="Logo" className="w-20 mb-3" />
@@ -95,7 +96,7 @@ export default function Login() {
             <div>
               <label
                 htmlFor="email"
-                className="block mb-1 text-sm font-semibold text-white dark:text-gray-700 hover:text-gray-200 dark:hover:text-gray-900 transition-colors duration-300"
+                className="block mb-1 text-sm font-semibold text-white transition-colors duration-300 dark:text-gray-700 hover:text-gray-200 dark:hover:text-gray-900"
               >
                 Email
               </label>
@@ -112,7 +113,7 @@ export default function Login() {
             <div>
               <label
                 htmlFor="password"
-                className="block mb-1 text-sm font-semibold text-white dark:text-gray-700 hover:text-gray-200 dark:hover:text-gray-900 transition-colors duration-300"
+                className="block mb-1 text-sm font-semibold text-white transition-colors duration-300 dark:text-gray-700 hover:text-gray-200 dark:hover:text-gray-900"
               >
                 Password
               </label>
