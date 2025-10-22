@@ -41,11 +41,7 @@ export default function TransactionView({ currentTransaction, onCancel }: Transa
     const dateLabel = trx.created_at ? new Date(trx.created_at).toLocaleDateString("id-ID") : "-";
 
     return (
-        <div className="p-4 bg-white border border-gray-100 shadow-md rounded-xl">
-            <div className="flex items-center justify-between pb-3 mb-4 border-b">
-                <span className="text-xl">Detail Transaksi #{trx.id}</span>
-                <button onClick={onCancel} className="text-gray-500 hover:text-gray-800"><X /></button>
-            </div>
+        <div className="bg-white border border-gray-100 shadow-md rounded-xl">
 
             <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
                 <InfoBlock title="Status" value={trx.type_name} color={flowColor} bgColor={flowBg} />

@@ -150,7 +150,7 @@ export default function TransactionHistory() {
                 />
             </Modal>
 
-            <Modal isOpen={isViewModalOpen} onClose={closeViewModal} title={`Detail Transaksi`}>
+            <Modal isOpen={isViewModalOpen} onClose={closeViewModal} title={`Detail Transaksi #${currentTransaction?.id}`}>
                 {currentTransaction && (
                     <TransactionView
                         currentTransaction={currentTransaction}
