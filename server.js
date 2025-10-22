@@ -11,6 +11,7 @@ const authMiddleware = require('./middleware/auth');
 // Inisialisasi Express
 const app = express();
 const PORT = 3000;
+const path = require('path');
 
 // Middleware
 app.use(express.json());
@@ -25,6 +26,7 @@ app.use('/api/transactions', TransactionController);
 app.use('/api/items', ItemController);
 app.use('/api/reports', ReportController);
 app.use('/api/categories', CategoryController);
+app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Run server
 app.listen(PORT, () => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2, Save, Trash2, PlusCircle, X } from "lucide-react";
+import { Loader2, Save, Trash2, PlusCircle, X, Eye } from "lucide-react";
 
 interface TransactionItem {
   itemId: number | null;
@@ -135,16 +135,6 @@ export default function TransactionForm({ currentTransaction, onSuccess, onCance
     if (nota) formData.append('nota', nota);
 
     formData.append('items', JSON.stringify(finalItems));
-
-    // const payload = {
-    //   user_id,
-    //   transaction_type: transactionType,
-    //   description,
-    //   amount: finalAmount,
-    //   items: finalItems,
-    // };
-
-    // console.log(payload.items);
 
     try {
       setLoading(true);

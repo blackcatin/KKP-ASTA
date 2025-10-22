@@ -8,13 +8,16 @@ const TransactionService = {
 	getAll: async filters => {
 		const query = knex('transactions')
 			.join('transaction_types', 'transactions.transaction_type_id', 'transaction_types.id')
+			.join('users', 'transactions.user_id', 'users.id')
 			.select(
 				'transactions.id',
 				'transactions.description',
 				'transactions.amount',
+				'transactions.nota_photo_url',
 				'transaction_types.name as type_name',
 				'transaction_types.flow as type_flow',
-				'transactions.created_at'
+				'transactions.created_at',
+				'users.full_name as user_full_name'
 			)
 			.orderBy('transactions.created_at', 'desc');
 
@@ -22,7 +25,22 @@ const TransactionService = {
 			query.whereBetween('transactions.created_at', [filters.start_date, filters.end_date]);
 		}
 
-		return query;
+		const transactions = await query;
+
+		const movements = await knex('stock_movements')
+			.join('items', 'stock_movements.item_id', 'items.id')
+			.select(
+				'stock_movements.transaction_id',
+				'items.item_name as item_name',
+				'stock_movements.quantity'
+			);
+
+		const result = transactions.map(trx => ({
+			...trx,
+			items: movements.filter(mov => mov.transaction_id === trx.id),
+		}));
+
+		return result;
 	},
 
 	// Fungsi untuk mendapatkan data berdasarkan ID

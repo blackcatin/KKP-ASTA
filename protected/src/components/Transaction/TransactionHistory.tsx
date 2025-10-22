@@ -1,15 +1,24 @@
-import { Currency, Calendar, DollarSign } from "lucide-react";
+import { Calendar, Eye } from "lucide-react";
 import { useEffect, useState } from "react";
 import Modal from "../Layout/Modal";
 import TransactionForm from "./TransactionForm";
+import TransactionView from "./TransactionView";
+
+interface TransactionItem {
+    item_name: string;
+    quantity: number;
+}
 
 interface Transaction {
     id: number,
     description: string,
     amount: number,
+    nota_photo_url: string | null,
+    user_full_name: string,
+    items: TransactionItem[],
     type_name: string,
     type_flow: string,
-    created_at: number
+    created_at: number | string,
 }
 
 export default function TransactionHistory() {
@@ -18,6 +27,7 @@ export default function TransactionHistory() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
     const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -42,6 +52,7 @@ export default function TransactionHistory() {
 
     const openAddModal = () => setIsAddModalOpen(true);
     const closeAddModal = () => setIsAddModalOpen(false);
+    const closeViewModal = () => setIsViewModalOpen(false);
 
     const formatRupiah = (value: number) =>
         new Intl.NumberFormat('id-ID', {
@@ -71,8 +82,6 @@ export default function TransactionHistory() {
                         type="text"
                         placeholder="Cari transaksi"
                         className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                    // value={ }
-                    // onChange={(e) => }
                     />
                     <button
                         onClick={openAddModal}
@@ -99,6 +108,7 @@ export default function TransactionHistory() {
                                     <th className="p-3 border-b">Deskripsi</th>
                                     <th className="p-3 border-b">Tipe</th>
                                     <th className="p-3 text-right border-b">Nominal</th>
+                                    <th className="p-3 text-right border-b">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -115,6 +125,14 @@ export default function TransactionHistory() {
                                         <td className={`p-3 border-b text-right ${trx.type_flow === 'masuk' ? 'text-green-700' : 'text-red-700'}`}>
                                             {formatRupiah(trx.amount)}
                                         </td>
+                                        <td className={`p-3 border-b text-right ${trx.type_flow === 'masuk' ? 'text-green-700' : 'text-red-700'}`}>
+                                            <button
+                                                onClick={() => {
+                                                    setCurrentTransaction(trx);
+                                                    setIsViewModalOpen(true);
+                                                }}
+                                            ><Eye></Eye></button>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -130,6 +148,15 @@ export default function TransactionHistory() {
                     onSuccess={handleSuccess}
                     onCancel={closeAddModal}
                 />
+            </Modal>
+
+            <Modal isOpen={isViewModalOpen} onClose={closeViewModal} title={`Detail Transaksi`}>
+                {currentTransaction && (
+                    <TransactionView
+                        currentTransaction={currentTransaction}
+                        onCancel={closeViewModal}
+                    />
+                )}
             </Modal>
         </div>
 
