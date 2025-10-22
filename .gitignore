@@ -27,3 +27,6 @@ logs/
 .vscode/
 .idea/
 *.swp
+
+# === local files ===
+uploads/receipts/
