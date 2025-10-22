@@ -55,7 +55,7 @@ export default function TransactionHistory() {
     }
 
     return (
-        <div p-4>
+        <div>
             <h2 className="mb-6 text-2xl font-bold">Daftar Transaksi</h2>
 
             {loading && <p className="text-gray-500">Memuat data..</p>}

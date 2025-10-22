@@ -18,6 +18,7 @@ interface Transaction {
   id: number,
   description: string,
   amount: number,
+  nota__photo_url: string | null,
   type_name: string,
   type_flow: string,
   created_at: number
@@ -36,6 +37,9 @@ export default function TransactionForm({ currentTransaction, onSuccess, onCance
   const [items, setItems] = useState<TransactionItem[]>([
     { itemId: null, quantity: 1 },
   ]);
+
+  const [nota, setNota] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
   const [masterItems, setMasterItems] = useState<MasterItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,6 +85,14 @@ export default function TransactionForm({ currentTransaction, onSuccess, onCance
     setItems(newItems);
   };
 
+  const handleNotaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setNota(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Data transaksi siap dikirim", {
@@ -92,7 +104,8 @@ export default function TransactionForm({ currentTransaction, onSuccess, onCance
 
     const user = JSON.parse(localStorage.getItem('user') || '{}')
     const user_id = user?.id;
-    if (!description.trim || !user_id) {
+
+    if (!description.trim() || !user_id) {
       setError("Keterangan dan Id pengguna harus diisi");
       return;
     }
@@ -110,24 +123,34 @@ export default function TransactionForm({ currentTransaction, onSuccess, onCance
       finalItems.length === 0
     ) {
       setError("Harap tambahkan minimal 1 item");
+      return;
     }
 
-    const payload = {
-      user_id,
-      transaction_type: transactionType,
-      description,
-      amount: finalAmount,
-      items: finalItems,
-    };
+    const formData = new FormData();
 
-    console.log(payload.items);
+    formData.append('user_id', user_id);
+    formData.append('transaction_type', transactionType);
+    formData.append('description', description);
+    if (finalAmount !== null) formData.append('amount', String(finalAmount));
+    if (nota) formData.append('nota', nota);
+
+    formData.append('items', JSON.stringify(finalItems));
+
+    // const payload = {
+    //   user_id,
+    //   transaction_type: transactionType,
+    //   description,
+    //   amount: finalAmount,
+    //   items: finalItems,
+    // };
+
+    // console.log(payload.items);
 
     try {
       setLoading(true);
       const response = await fetch(`${apiUrl}/transactions`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -137,6 +160,8 @@ export default function TransactionForm({ currentTransaction, onSuccess, onCance
 
       setItems([{ itemId: null, quantity: 1 }]);
       onSuccess();
+      setNota(null);
+      setPreview(null);
     } catch (error: any) {
       setError(error.response?.data?.message || error.message || "Server error");
     } finally {
@@ -248,6 +273,14 @@ export default function TransactionForm({ currentTransaction, onSuccess, onCance
                       rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               />
             </div>
+            <div>
+              <label className="block mb-1 font-semibold">Upload Nota</label>
+              <input type="file" accept="image/*" onChange={handleNotaChange} />
+              {preview && (
+                <img src={preview} alt="Preview nota" className="w-40 h-auto mt-2 border rounded-lg" />
+              )}
+            </div>
+
           </div>
         )}
 

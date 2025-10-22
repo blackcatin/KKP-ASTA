@@ -44,6 +44,7 @@ const TransactionService = {
 					transaction_type_id: typeRow.id,
 					description: data.description,
 					amount: data.amount || 0,
+					nota_photo_url: data.nota_photo_url || null,
 				})
 				.returning('*');
 
