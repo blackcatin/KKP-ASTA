@@ -92,7 +92,7 @@ router.post('/logout', authMiddleware, async (req, res) => {
 });
 
 // get all user
-router.get('/', authMiddleware, authorizeRole('owner'), async (req, res) => {
+router.get('/', async (req, res) => {
 	try {
 		const users = await UserService.getAllUsers(req.query.role);
 		res.status(200).json({users});

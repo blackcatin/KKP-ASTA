@@ -43,15 +43,14 @@ exports.authMiddleware = async (req, res, next) => {
 	}
 };
 
-exports.authorizeRole = requiredRole => (req, res, next) => {
-	// cek role user
-	if (req.user && req.user.role === requiredRole) {
-		next();
-	} else {
-		res.status(403).json({
-			error: true,
-			message: `Akses ditolak: hanya ${requiredRole} yang bisa melakukan aksi ini.`,
-			yourRole: req.user ? req.user.role : 'tidak terdeteksi',
-		});
+exports.authorizeRole = (...allowedRoles) => (req, res, next) => {
+	if (req.user && allowedRoles.includes(req.user.role)) {
+		return next();
 	}
+
+	return res.status(403).json({
+		error: true,
+		message: `Akses ditolak: hanya role [${allowedRoles.join(', ')}] yang diizinkan.`,
+		yourRole: req.user ? req.user.role : 'tidak terdeteksi',
+	});
 };
