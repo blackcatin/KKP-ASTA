@@ -22,6 +22,7 @@ api.interceptors.response.use(
     (error) => {
     const code = error.response?.data?.code;
     const message = error.response?.data?.message;
+    const status = error.response?.status;
 
     if (
         code === "TOKEN_EXPIRED" ||
@@ -32,6 +33,12 @@ api.interceptors.response.use(
         localStorage.removeItem("accessToken");
         localStorage.removeItem("user");
         window.location.href = "/login";
+    }
+
+    if (status === 401) {
+        const role = localStorage.getItem("role");
+        window.location.href = role ? "/unauthorized" : "/login";
+        return Promise.reject(error);
     }
 
     return Promise.reject(error);

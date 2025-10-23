@@ -6,7 +6,7 @@ import ReportPage from './components/ReportPage/ReportPage';
 import ItemPage from './components/ItemPage/ItemPage';
 import CategoryPage from './components/CategoryPage/CategoryPage';
 import TransactionHistory from './components/Transaction/TransactionHistory';
-import Dashboard from './components/Dashboard/OwnerDashboard';
+import Dashboard from './components/Dashboard/Dashboard';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import Unauthorized from './components/Auth/Unauthorized';
 

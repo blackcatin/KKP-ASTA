@@ -44,7 +44,7 @@ export default function Login() {
         localStorage.setItem("user", JSON.stringify(data.user));
         localStorage.setItem("role", data.role);
         console.log("User role:", data.user.role);
-        nav("/dashboard");
+        nav("/dashboard/home");
       } else {
         setError(data.message || "Login gagal, silakan coba lagi.");
       }
@@ -139,7 +139,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 font-semibold text-white rounded-lg transition-all duration-200 ease-in-out shadow-md hover:shadow-lg hover:shadow-[var(--color-secondary)/50] hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 font-semibold text-white rounded-lg transition-all duration-200 ease-in-out shadow-md hover:shadow-lg hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: "var(--color-primary)", color: "white" }}
             >
               {loading ? "Loading..." : "Login"}
