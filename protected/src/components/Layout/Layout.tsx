@@ -13,13 +13,13 @@ import {
   Sun,
 } from "lucide-react";
 import axios from "axios";
-import { useTheme } from "../../context/ThemeContext"; 
+import { useTheme } from "../../context/ThemeContext";
 
 const Layout: React.FC = () => {
   const location = useLocation();
   const nav = useNavigate();
   const apiUrl = import.meta.env.VITE_API_URL;
-  const { theme, toggleTheme } = useTheme(); 
+  const { theme, toggleTheme } = useTheme();
   const role = localStorage.getItem("role");
 
   const handleLogout = async () => {
@@ -44,10 +44,10 @@ const Layout: React.FC = () => {
 
   const menuItems = [
     { path: "/dashboard/home", label: "Home", icon: <Home className="w-5 h-5" />, roles: ["owner", "staff"] },
+    { path: "/dashboard/reports", label: "Laporan", icon: <BarChart2 className="w-5 h-5" />, roles: ["owner"] },
     { path: "/dashboard/staff", label: "Staff", icon: <Users className="w-5 h-5" />, roles: ["owner"] },
     { path: "/dashboard/transaction", label: "Transaksi", icon: <ShoppingCart className="w-5 h-5" />, roles: ["owner", "staff"] },
     { path: "/dashboard/items", label: "Stok Barang", icon: <Package className="w-5 h-5" />, roles: ["owner", "staff"] },
-    { path: "/dashboard/reports", label: "Laporan", icon: <BarChart2 className="w-5 h-5" />, roles: ["owner"] },
     { path: "/dashboard/categories", label: "Kategori", icon: <Layers className="w-5 h-5" />, roles: ["owner"] },
     { path: "/logout", label: "Logout", icon: <LogOut className="w-5 h-5" />, roles: ["owner", "staff"] },
   ];
@@ -55,8 +55,7 @@ const Layout: React.FC = () => {
   return (
     <>
       <nav
-        className="fixed top-0 z-50 flex items-center justify-between w-full px-4 py-3 
-                   border-b shadow-sm border-white/20 bg-primary text-white dark:bg-gray-900 dark:text-gray-100"
+        className="fixed top-0 z-50 flex items-center justify-between w-full px-4 py-3 text-white border-b shadow-sm border-white/20 bg-primary dark:bg-gray-900 dark:text-gray-100"
       >
         <div className="flex items-center space-x-3">
           <img src={Logo} className="h-8 rounded-lg" alt="Logo" />
@@ -78,9 +77,7 @@ const Layout: React.FC = () => {
 
       <aside
         id="logo-sidebar"
-        className="fixed top-0 left-0 z-40 w-64 h-screen pt-20 border-r border-white/20
-                   bg-primary text-white shadow-md transition-colors duration-300
-                   dark:bg-gray-900 dark:text-gray-100"
+        className="fixed top-0 left-0 z-40 w-64 h-screen pt-20 text-white transition-colors duration-300 border-r shadow-md border-white/20 bg-primary dark:bg-gray-900 dark:text-gray-100"
         aria-label="Sidebar"
       >
         <div className="h-full px-3 pb-4 overflow-y-auto">
@@ -92,8 +89,7 @@ const Layout: React.FC = () => {
                   {item.path === "/logout" ? (
                     <button
                       onClick={handleLogout}
-                      className="flex items-center w-full p-2 transition-all duration-200 rounded-lg 
-                                 hover:bg-red-500/30 hover:text-red-200 dark:hover:bg-red-500/20"
+                      className="flex items-center w-full p-2 transition-all duration-200 rounded-lg hover:bg-red-500/30 hover:text-red-200 dark:hover:bg-red-500/20"
                     >
                       {item.icon}
                       <span className="ms-3">{item.label}</span>
@@ -101,11 +97,10 @@ const Layout: React.FC = () => {
                   ) : (
                     <Link
                       to={item.path}
-                      className={`flex items-center p-2 rounded-lg transition-all duration-200 ${
-                        location.pathname === item.path
+                      className={`flex items-center p-2 rounded-lg transition-all duration-200 ${location.pathname === item.path
                           ? "bg-white/30 text-white dark:bg-gray-700 dark:text-white"
                           : "text-white hover:bg-white/20 dark:text-gray-300 dark:hover:bg-gray-800"
-                      }`}
+                        }`}
                     >
                       {item.icon}
                       <span className="ms-3">{item.label}</span>
