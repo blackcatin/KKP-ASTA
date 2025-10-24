@@ -1,8 +1,18 @@
 import { useState, useEffect } from "react";
-import { Search, ArrowUpDown, Plus, Pencil, Trash2 } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  ArrowUpDown,
+  Plus,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  ListFilter,
+} from "lucide-react";
 import Modal from "../Layout/Modal";
 import DeleteModal from "../Layout/DeleteModal";
 import CategoryForm from "./CategoryForm";
+import { useTheme } from "../../context/ThemeContext";
 
 interface Category {
   id: number;
@@ -10,212 +20,209 @@ interface Category {
   description: string;
 }
 
+type SortKey = keyof Category;
+type SortOrder = "asc" | "desc";
+
 export default function CategoryPage() {
+  const { theme } = useTheme();
   const [categoryList, setCategoryList] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentCat, setCurrentCat] = useState<Category | null>(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteOpen] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [addModal, setAddModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortConfig, setSortConfig] = useState<{ key: keyof Category; direction: "asc" | "desc" } | null>(null);
+  const [sortKey, setSortKey] = useState<SortKey>("id");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
   const fetchCategories = async () => {
+    setLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/categories`);
-      if (!response.ok) throw new Error("Gagal mengambil data");
-      const data = await response.json();
+      const res = await fetch(`${apiUrl}/categories`);
+      if (!res.ok) throw new Error("Gagal mengambil data");
+      const data = await res.json();
       setCategoryList(data);
-    } catch (error) {
-      if (error instanceof Error) setError(error.message || "Server error");
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Server error");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  useEffect(() => { fetchCategories(); }, []);
 
-  const openAddModal = () => {
-    setCurrentCat(null);
-    setIsAddModalOpen(true);
+  const handleSort = (key: SortKey) => {
+    if (key === sortKey) setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    else { setSortKey(key); setSortOrder("asc"); }
+    setCurrentPage(1);
   };
 
-  const openEditModal = (category: Category) => {
-    setCurrentCat(category);
-    setIsEditModalOpen(true);
-  };
-
-  const openDeleteModal = (category: Category) => {
-    setCurrentCat(category);
-    setIsDeleteOpen(true);
-  };
-
-  const closeAddModal = () => setIsAddModalOpen(false);
-  const closeEditModal = () => setIsEditModalOpen(false);
-  const closeDeleteModal = () => setIsDeleteOpen(false);
-
-  const handleSuccess = () => {
-    setIsAddModalOpen(false);
-    setIsEditModalOpen(false);
-    setIsDeleteOpen(false);
-    fetchCategories();
-  };
-
-  const filteredCategories = categoryList.filter((cat) => {
-    const name = cat.name?.toLowerCase() || "";
-    const desc = cat.description?.toLowerCase() || "";
-    const term = searchTerm.toLowerCase();
-    return name.includes(term) || desc.includes(term);
-  });
-
-  const sortedCategories = [...filteredCategories].sort((a, b) => {
-    if (!sortConfig) return 0;
-    const { key, direction } = sortConfig;
-    if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
-    if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+  const sortedCategories = [...categoryList].sort((a, b) => {
+    const valA = a[sortKey];
+    const valB = b[sortKey];
+    if (typeof valA === "number" && typeof valB === "number")
+      return sortOrder === "asc" ? valA - valB : valB - valA;
+    if (typeof valA === "string" && typeof valB === "string")
+      return sortOrder === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
     return 0;
   });
 
-  const handleSort = (key: keyof Category) => {
-    setSortConfig((prev) => {
-      if (prev?.key === key) {
-        return { key, direction: prev.direction === "asc" ? "desc" : "asc" };
-      }
-      return { key, direction: "asc" };
-    });
-  };
+  const filteredCategories = sortedCategories.filter(
+    (cat) =>
+      cat.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cat.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  if (loading) return <div>Memuat daftar kategori...</div>;
-  if (error) return <div className="text-red-600">Error: {error}</div>;
+  const totalPages = Math.ceil(filteredCategories.length / entriesPerPage);
+  const paginatedCategories = filteredCategories.slice(
+    (currentPage - 1) * entriesPerPage,
+    currentPage * entriesPerPage
+  );
+
+  const SortIcon = ({ column }: { column: SortKey }) => (
+    <ArrowUpDown
+      size={16}
+      className={`inline-block ml-1 transition-transform ${
+        sortKey === column
+          ? sortOrder === "asc"
+            ? "rotate-180 text-[var(--color-secondary)]"
+            : "text-[var(--color-secondary)]"
+          : "text-gray-400 dark:text-gray-500"
+      }`}
+    />
+  );
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-red-500">Error: {error}</div>;
 
   return (
-    <div className="p-4 sm:p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Manajemen Kategori</h2>
-      </div>
+    <div className={`min-h-full transition-colors duration-300 ${theme === "dark" ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"}`}>
+      <h2 className={`mb-6 text-2xl font-bold transition-colors duration-300 ${theme === "dark" ? "text-gray-100" : "text-gray-900"}`}>
+        Kelola Kategori
+      </h2>
 
-      {deleteError && (
-        <div className="p-3 mb-4 text-red-700 bg-red-100 rounded-lg">
-          <strong>Gagal: {deleteError}</strong>
-        </div>
-      )}
+      <div className={`p-5 rounded-lg shadow transition-colors duration-300 ${theme === "dark" ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"}`}>
+        <div className="flex flex-col items-center justify-between gap-4 mb-4 md:flex-row">
+          <div className="flex items-center w-full gap-2 md:w-auto">
+            <div className="relative w-full md:w-60">
+              <Search size={16} className="absolute text-gray-400 dark:text-gray-500 transform -translate-y-1/2 left-3 top-1/2"/>
+              <input
+                type="text"
+                placeholder="Cari kategori..."
+                className={`w-full px-8 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]
+                  ${theme === "dark" ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400" : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500"}`}
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+              />
+            </div>
 
-      <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative w-full sm:w-1/3">
-          <Search className="absolute w-5 h-5 text-gray-400 left-3 top-2.5" />
-          <input
-            type="text"
-            placeholder="Cari kategori..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
-          />
-        </div>
-
-        <button
-          onClick={openAddModal}
-          className="flex items-center justify-center gap-2 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-          style={{ backgroundColor: "var(--color-secondary)", color: "white" }}
-        >
-          <Plus className="w-4 h-4" />
-          Tambah Kategori
-        </button>
-      </div>
-
-      <div className="overflow-x-auto bg-white rounded-lg shadow">
-        <table className="min-w-full text-sm text-left text-gray-700">
-          <thead className="text-xs text-gray-500 uppercase bg-gray-50">
-            <tr>
-              <th
-                className="px-6 py-3 cursor-pointer select-none"
-                onClick={() => handleSort("name")}
+            <div className={`flex items-center gap-1 px-2 py-1 border rounded-lg text-sm ${theme === "dark" ? "border-gray-600 bg-gray-700 text-gray-100" : "border-gray-300 bg-gray-50 text-gray-700"}`}>
+              <ListFilter size={16} className={`${theme === "dark" ? "text-gray-300" : "text-gray-500"}`}/>
+              <select
+                value={entriesPerPage}
+                onChange={(e) => { setEntriesPerPage(Number(e.target.value)); setCurrentPage(1); }}
+                className={`bg-transparent border-none focus:outline-none cursor-pointer ${theme === "dark" ? "bg-gray-700 text-gray-100" : "bg-gray-50 text-gray-900"}`}
               >
-                <div className="flex items-center gap-1">
-                  Nama
-                  <ArrowUpDown className="w-4 h-4 text-gray-400" />
-                </div>
-              </th>
-              <th
-                className="px-6 py-3 cursor-pointer select-none"
-                onClick={() => handleSort("description")}
-              >
-                <div className="flex items-center gap-1">
-                  Deskripsi
-                  <ArrowUpDown className="w-4 h-4 text-gray-400" />
-                </div>
-              </th>
-              <th className="px-6 py-3 text-center">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedCategories.length > 0 ? (
-              sortedCategories.map((category) => (
-                <tr
-                  key={category.id}
-                  className="border-b hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">{category.name}</td>
-                  <td className="px-6 py-4">{category.description}</td>
-                  <td className="px-6 py-4 text-center whitespace-nowrap">
-                    <button
-                      onClick={() => openEditModal(category)}
-                      className="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-900 mr-3"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => openDeleteModal(category)}
-                      className="inline-flex items-center gap-1 text-red-600 hover:text-red-900"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                {[5, 10, 20, 50].map(n => (
+                  <option key={n} value={n} className={theme === "dark" ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"}>{n}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setAddModal(true)}
+            className="flex items-center w-full justify-center md:w-auto gap-2 px-3 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90 transition shadow-md"
+            style={{ backgroundColor: "var(--color-secondary)" }}
+          >
+            <Plus className="w-4 h-4"/> Tambah Kategori
+          </button>
+        </div>
+
+        <div className={`relative overflow-x-auto border rounded-lg transition-colors duration-300 ${theme === "dark" ? "border-gray-700" : "border-gray-200"}`}>
+          <table className={`w-full text-sm text-left transition-colors duration-300 ${theme === "dark" ? "text-gray-200" : "text-gray-700"}`}>
+            <thead className={`uppercase transition-colors duration-300 ${theme === "dark" ? "bg-gray-700 text-gray-100" : "bg-gray-100 text-gray-700"}`}>
+              <tr>
+                {["id", "name", "description"].map((key) => (
+                  <th
+                    key={key}
+                    className={`px-6 py-3 cursor-pointer select-none whitespace-nowrap transition-colors duration-200 ${theme === "dark" ? "hover:bg-gray-600" : "hover:bg-gray-200"}`}
+                    onClick={() => handleSort(key as SortKey)}
+                  >
+                    <div className="flex items-center gap-1">
+                      {key === "id" && "ID"}
+                      {key === "name" && "Nama"}
+                      {key === "description" && "Deskripsi"}
+                      <SortIcon column={key as SortKey}/>
+                    </div>
+                  </th>
+                ))}
+                <th className="px-6 py-3 whitespace-nowrap">Aksi</th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              {paginatedCategories.length > 0 ? (
+                paginatedCategories.map(cat => (
+                  <tr key={cat.id} className={`transition ${theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}>
+                    <td className="px-6 py-3 whitespace-nowrap">{cat.id}</td>
+                    <td className="px-6 py-3 whitespace-nowrap">{cat.name}</td>
+                    <td className="px-6 py-3">{cat.description}</td>
+                    <td className="flex items-center gap-2 px-6 py-3 whitespace-nowrap">
+                      <button onClick={() => { setCurrentCat(cat); setEditModal(true); }} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300" title="Edit">
+                        <Pencil className="w-5 h-5"/>
+                      </button>
+                      <button onClick={() => { setCurrentCat(cat); setDeleteModal(true); }} className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300" title="Hapus">
+                        <Trash2 className="w-5 h-5"/>
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                    Tidak ada data
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={3} className="py-4 text-center text-gray-500">
-                  Tidak ada kategori ditemukan.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex items-center justify-center gap-4 mt-4 text-sm text-gray-600 dark:text-gray-300">
+          <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p-1)} className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40">
+            <ChevronLeft size={18}/>
+          </button>
+          <span>{currentPage}/{totalPages || 1}</span>
+          <button disabled={currentPage === totalPages || totalPages === 0} onClick={() => setCurrentPage(p => p+1)} className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-40">
+            <ChevronRight size={18}/>
+          </button>
+        </div>
       </div>
 
-      <Modal isOpen={isAddModalOpen} onClose={closeAddModal} title="Tambah Kategori">
-        <CategoryForm
-          currentCat={null}
-          onSuccess={handleSuccess}
-          onCancel={closeAddModal}
-        />
+      <Modal isOpen={addModal} onClose={() => setAddModal(false)} title="Tambah Kategori">
+        <CategoryForm onSuccess={() => { setAddModal(false); fetchCategories(); } } onCancel={() => setAddModal(false)} currentCat={null} />
       </Modal>
 
-      <Modal isOpen={isEditModalOpen} onClose={closeEditModal} title="Edit Kategori">
-        {currentCat && (
-          <CategoryForm
-            currentCat={currentCat}
-            onSuccess={handleSuccess}
-            onCancel={closeEditModal}
-          />
-        )}
+      <Modal isOpen={editModal} onClose={() => setEditModal(false)} title={`Edit: ${currentCat?.name}`}>
+        {currentCat && <CategoryForm currentCat={currentCat} onSuccess={() => { setEditModal(false); fetchCategories(); }} onCancel={() => setEditModal(false)} />}
       </Modal>
 
-      <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal} title="Hapus Kategori">
+      <Modal isOpen={deleteModal} onClose={() => setDeleteModal(false)} title="Hapus Kategori">
         {currentCat && (
           <DeleteModal
             itemId={currentCat.id}
             itemName={currentCat.name}
             itemType="kategori"
             endpoint="categories"
-            onDelete={handleSuccess}
-            onCancel={closeDeleteModal}
+            onDelete={() => { setDeleteModal(false); fetchCategories(); }}
+            onCancel={() => setDeleteModal(false)}
           />
         )}
       </Modal>
