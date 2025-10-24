@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import DCard from "./DCard";
 import RecentTransactionsCard from "./RecentTransactionCard";
+import { AlertTriangle, DollarSign, Package, TrendingUp } from "lucide-react";
+
+interface ReportData {
+    laba_rugi: number;
+    arus_kas: number;
+    total_kas_masuk: number;
+    total_biaya: number;
+}
 
 export default function Dashboard() {
 
