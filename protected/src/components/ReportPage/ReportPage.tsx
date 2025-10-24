@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { TrendingUp, TrendingDown, DollarSign, Calendar } from "lucide-react";
+import { TrendingUp, DollarSign, Calendar } from "lucide-react";
+import { useTheme } from "../../context/ThemeContext"; 
 
 interface ReportData {
     total_penjualan: number;
@@ -11,6 +12,7 @@ interface ReportData {
 }
 
 export default function ReportPage() {
+    const { theme } = useTheme(); 
     const [report, setReport] = useState<ReportData | null>(null);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -29,7 +31,7 @@ export default function ReportPage() {
             const [pnlResponse, cashResponse] = await Promise.all([
                 fetch(`${apiUrl}/reports/laba-rugi?start_date=${startDate}&end_date=${endDate}`),
                 fetch(`${apiUrl}/reports/arus-kas?start_date=${startDate}&end_date=${endDate}`)
-            ])
+            ]);
 
             if (!pnlResponse.ok || !cashResponse.ok) throw new Error('Gagal memuat salah satu laporan');
 
@@ -59,66 +61,87 @@ export default function ReportPage() {
     }, [startDate, endDate]);
 
     return (
-        <div className="min-h-screen p-8 bg-gray-50">
-            <h2 className="flex items-center gap-2 mb-6 text-3xl font-bold text-gray-800">
+        <div className={`min-h-screen p-8 transition-colors duration-300
+            ${theme === "dark" ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"}`}>
+            <h2 className={`flex items-center gap-2 mb-6 text-3xl font-bold transition-colors duration-300
+                ${theme === "dark" ? "text-gray-100" : "text-gray-800"}`}>
                 Laporan Transaksi
             </h2>
 
-            <div className="flex flex-wrap items-end gap-4 p-4 mb-6 bg-white border shadow-sm rounded-xl">
+            <div className={`flex flex-wrap items-end gap-4 p-4 mb-6 transition-colors duration-300
+                ${theme === "dark" ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"} rounded-xl shadow-sm`}>
                 <div className="flex items-center gap-2">
-                    <Calendar className="text-gray-500" size={18} />
+                    <Calendar className="text-gray-400 dark:text-gray-300" size={18} />
                     <div>
-                        <label className="block text-xs text-gray-600">Mulai</label>
+                        <label className={`block text-xs transition-colors duration-300
+                            ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>
+                            Mulai
+                        </label>
                         <input
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
-                            className="p-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
+                            className={`p-2 mt-1 border rounded-lg transition-colors duration-300
+                                ${theme === "dark"
+                                    ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400 focus:ring-[var(--color-secondary)] focus:border-[var(--color-secondary)]"
+                                    : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-[var(--color-secondary)] focus:border-[var(--color-secondary)]"}`}
                         />
                     </div>
                 </div>
+
                 <div className="flex items-center gap-2">
-                    <Calendar className="text-gray-500" size={18} />
+                    <Calendar className="text-gray-400 dark:text-gray-300" size={18} />
                     <div>
-                        <label className="block text-xs text-gray-600">Sampai</label>
+                        <label className={`block text-xs transition-colors duration-300
+                            ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>
+                            Sampai
+                        </label>
                         <input
                             type="date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
-                            className="p-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
+                            className={`p-2 mt-1 border rounded-lg transition-colors duration-300
+                                ${theme === "dark"
+                                    ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400 focus:ring-[var(--color-secondary)] focus:border-[var(--color-secondary)]"
+                                    : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-[var(--color-secondary)] focus:border-[var(--color-secondary)]"}`}
                         />
                     </div>
                 </div>
+
                 <button
                     onClick={fetchReport}
                     disabled={loading}
-                    className="px-5 py-2 text-sm font-semibold text-white transition bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                    style={{ backgroundColor: "var(--color-secondary)", color: "white" }}
+                    className={`px-5 py-2 text-sm font-semibold rounded-lg transition-colors duration-300
+                        ${theme === "dark" ? "bg-[var(--color-netral)] text-white hover:brightness-110 disabled:opacity-50" 
+                                        : "bg-[var(--color-secondary)] text-white hover:brightness-90 disabled:opacity-50"}`}
                 >
                     {loading ? 'Memuat...' : 'Tampilkan'}
                 </button>
             </div>
 
             {!loading && !report && !error && (
-                <div className="p-4 mb-4 text-red-700 bg-red-100 border border-red-300 rounded-lg">
+                <div className={`p-4 mb-4 border rounded-lg transition-colors duration-300
+                    ${theme === "dark" ? "bg-gray-700 text-gray-200 border-gray-600" : "bg-red-100 text-red-700 border-red-300"}`}>
                     Tidak ada data dalam periode ini.
                 </div>
             )}
 
             {error && (
-                <div className="p-4 mb-4 text-red-700 bg-red-100 border border-red-300 rounded-lg">
+                <div className={`p-4 mb-4 border rounded-lg transition-colors duration-300
+                    ${theme === "dark" ? "bg-gray-700 text-red-300 border-gray-600" : "bg-red-100 text-red-700 border-red-300"}`}>
                     {error}
                 </div>
             )}
 
             {report && (
                 <div className="grid gap-8 md:grid-cols-2">
-                    <div className="p-6 transition bg-white border shadow-sm rounded-xl hover:shadow-md">
+                    <div className={`p-6 transition-colors duration-300 rounded-xl border shadow-sm hover:shadow-md
+                        ${theme === "dark" ? "bg-gray-800 border-gray-700 text-gray-200" : "bg-white border-gray-200 text-gray-900"}`}>
                         <div className="flex items-center gap-2 pb-2 mb-4 border-b">
                             <TrendingUp className="text-green-600" />
-                            <h3 className="text-xl font-semibold text-gray-800">Laba Rugi</h3>
+                            <h3 className="text-xl font-semibold">Laba Rugi</h3>
                         </div>
-                        <div className="space-y-2 text-gray-700">
+                        <div className="space-y-2">
                             <p className="flex justify-between">
                                 <span>Total Penjualan:</span>
                                 <span className="font-medium text-green-600">{formatRupiah(report.total_penjualan)}</span>
@@ -136,12 +159,13 @@ export default function ReportPage() {
                         </div>
                     </div>
 
-                    <div className="p-6 transition bg-white border shadow-sm rounded-xl hover:shadow-md">
+                    <div className={`p-6 transition-colors duration-300 rounded-xl border shadow-sm hover:shadow-md
+                        ${theme === "dark" ? "bg-gray-800 border-gray-700 text-gray-200" : "bg-white border-gray-200 text-gray-900"}`}>
                         <div className="flex items-center gap-2 pb-2 mb-4 border-b">
                             <DollarSign className="text-yellow-600" />
-                            <h3 className="text-xl font-semibold text-gray-800">Arus Kas</h3>
+                            <h3 className="text-xl font-semibold">Arus Kas</h3>
                         </div>
-                        <div className="space-y-2 text-gray-700">
+                        <div className="space-y-2">
                             <p className="flex justify-between">
                                 <span>Kas Masuk (Pemasukan, Lain-Lain):</span>
                                 <span className="font-medium text-green-600">{formatRupiah(report.total_kas_masuk)}</span>

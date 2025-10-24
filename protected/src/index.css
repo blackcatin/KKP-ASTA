@@ -6,25 +6,35 @@
   --color-secondary: #034B7D;
   --color-accent: #0E8390;
   --color-netral: #fff;
+  --color-text-main: #1E1E1E; 
+  --color-bg-main: whitesmoke; 
+}
+
+html.dark {
+  --color-primary: #0d1117;
+  --color-secondary: #1f2937;
+  --color-accent: #0E8390;
+  --color-netral: #36454F;
+  --color-text-main: #f5f5f5; 
+  --color-bg-main: #1f2937;
 }
 
 html,
 body,
 #root {
   height: 100%;
-  width: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
-  background: none;
-  position: relative;
+  background-color: var(--color-bg-main);
+  color: var(--color-text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background: whitesmoke;
+  background: var(--color-bg-main);
   filter: blur(16px) brightness(0.9);
   transform: scale(1.05);
   z-index: -10;
@@ -39,6 +49,9 @@ body::before {
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
-body, * {
-  color: var(--color-text-main);
+html.dark .glass-bg {
+  background: rgba(17, 25, 40, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
 }
+
