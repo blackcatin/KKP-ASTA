@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Loader2, Save, Trash2, PlusCircle, X } from "lucide-react";
-import { useTheme } from "../../context/ThemeContext"; 
+import { useTheme } from "../../context/ThemeContext";
 
 interface TransactionItem {
   itemId: number | null;
@@ -115,14 +115,12 @@ export default function TransactionForm({ onSuccess, onCancel }: TransactionProp
   return (
     <form
       onSubmit={handleSubmit}
-      className={`p-4 rounded-xl shadow-lg max-w-3xl mx-auto space-y-4 text-sm transition-colors ${
-        theme === "dark" ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"
-      }`}
+      className={`p-4 rounded-xl shadow-lg max-w-3xl mx-auto space-y-4 text-sm transition-colors ${theme === "dark" ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"
+        }`}
     >
       {error && (
-        <div className={`p-2 rounded border ${
-          theme === "dark" ? "bg-red-900/30 border-red-700 text-red-200" : "bg-red-200 border-red-400 text-red-700"
-        }`}>{error}</div>
+        <div className={`p-2 rounded border ${theme === "dark" ? "bg-red-900/30 border-red-700 text-red-200" : "bg-red-200 border-red-400 text-red-700"
+          }`}>{error}</div>
       )}
 
       <div className="relative">
@@ -131,9 +129,8 @@ export default function TransactionForm({ onSuccess, onCancel }: TransactionProp
           <select
             value={transactionType}
             onChange={(e) => setTransactionType(e.target.value)}
-            className={`w-full pl-2 p-2 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm border ${
-              theme === "dark" ? "bg-gray-700 border-gray-600 text-gray-100" : "bg-gray-50 border-gray-300 text-gray-900"
-            }`}
+            className={`w-full pl-2 p-2 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm border ${theme === "dark" ? "bg-gray-700 border-gray-600 text-gray-100" : "bg-gray-50 border-gray-300 text-gray-900"
+              }`}
           >
             <option value="pemakaian">Pemakaian</option>
             <option value="penjualan">Penjualan (Kas Masuk)</option>
@@ -151,13 +148,12 @@ export default function TransactionForm({ onSuccess, onCancel }: TransactionProp
           <h3 className={`font-medium flex items-center gap-1 ${theme === "dark" ? "text-gray-200" : "text-gray-700"}`}>Daftar Item</h3>
           <div className="space-y-2">
             {items.map((item, index) => (
-              <div key={index} className="flex flex-col md:flex-row gap-2 items-start md:items-center">
+              <div key={index} className="flex flex-col items-start gap-2 md:flex-row md:items-center">
                 <select
                   value={item.itemId || ""}
                   onChange={(e) => handleItemChange(index, "itemId", parseInt(e.target.value))}
-                  className={`flex-1 p-2 rounded-lg border text-sm ${
-                    theme === "dark" ? "bg-gray-800 border-gray-600 text-gray-100" : "bg-white border-gray-300 text-gray-900"
-                  }`}
+                  className={`flex-1 p-2 rounded-lg border text-sm ${theme === "dark" ? "bg-gray-800 border-gray-600 text-gray-100" : "bg-white border-gray-300 text-gray-900"
+                    }`}
                 >
                   <option value="" disabled>Pilih item</option>
                   {masterItems.map(mItem => <option key={mItem.id} value={mItem.id}>{mItem.item_name}</option>)}
@@ -169,9 +165,8 @@ export default function TransactionForm({ onSuccess, onCancel }: TransactionProp
                   min={1}
                   placeholder="Qty"
                   onChange={(e) => handleItemChange(index, "quantity", parseInt(e.target.value))}
-                  className={`w-20 p-2 rounded-lg border text-sm ${
-                    theme === "dark" ? "bg-gray-800 border-gray-600 text-gray-100" : "bg-white border-gray-300 text-gray-900"
-                  }`}
+                  className={`w-20 p-2 rounded-lg border text-sm ${theme === "dark" ? "bg-gray-800 border-gray-600 text-gray-100" : "bg-white border-gray-300 text-gray-900"
+                    }`}
                 />
 
                 {items.length > 1 && (
@@ -183,9 +178,8 @@ export default function TransactionForm({ onSuccess, onCancel }: TransactionProp
             ))}
           </div>
 
-          <button type="button" onClick={addItem} className={`flex items-center gap-1 text-sm hover:underline ${
-            theme === "dark" ? "text-blue-400" : "text-blue-600"
-          }`}>
+          <button type="button" onClick={addItem} className={`flex items-center gap-1 text-sm hover:underline ${theme === "dark" ? "text-blue-400" : "text-blue-600"
+            }`}>
             <PlusCircle className="w-4 h-4" /> Tambah item
           </button>
 
@@ -196,17 +190,42 @@ export default function TransactionForm({ onSuccess, onCancel }: TransactionProp
               value={amount}
               onChange={(e) => setAmount(parseInt(e.target.value))}
               placeholder="Contoh: 50000"
-              className={`w-full p-2 mt-1 rounded-lg border text-sm ${
-                theme === "dark" ? "bg-gray-800 border-gray-600 text-gray-100" : "bg-white border-gray-300 text-gray-900"
-              }`}
+              className={`w-full p-2 mt-1 rounded-lg border text-sm ${theme === "dark" ? "bg-gray-800 border-gray-600 text-gray-100" : "bg-white border-gray-300 text-gray-900"
+                }`}
             />
           </div>
 
           <div className="flex flex-col gap-1">
             <label className={`font-medium ${theme === "dark" ? "text-gray-200" : "text-gray-700"}`}>Upload Nota</label>
-            <label className={`inline-flex items-center px-2 py-1 rounded-lg cursor-pointer text-sm transition ${
-              theme === "dark" ? "bg-gray-700 text-gray-200 hover:bg-gray-600" : "bg-gray-300 text-gray-700 hover:bg-gray-200"
-            }`}>
+            <label className={`inline-flex items-center px-2 py-1 rounded-lg cursor-pointer text-sm transition ${theme === "dark" ? "bg-gray-700 text-gray-200 hover:bg-gray-600" : "bg-gray-300 text-gray-700 hover:bg-gray-200"
+              }`}>
+              Pilih File
+              <input type="file" accept="image/*" onChange={handleNotaChange} className="hidden" />
+            </label>
+            {nota && <p className={`${theme === "dark" ? "text-gray-200" : "text-gray-700"} mt-1 text-sm`}>{nota.name}</p>}
+          </div>
+        </div>
+      )}
+
+      {(transactionType === 'pemasukan') && (
+        <div className={`p-2 rounded-lg space-y-2 transition-colors ${theme === "dark" ? "bg-gray-700" : "bg-gray-50"}`}>
+
+          <div>
+            <label className={`font-medium ${theme === "dark" ? "text-gray-200" : "text-gray-700"}`}>Jumlah Total (Rp)</label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(parseInt(e.target.value))}
+              placeholder="Contoh: 50000"
+              className={`w-full p-2 mt-1 rounded-lg border text-sm ${theme === "dark" ? "bg-gray-800 border-gray-600 text-gray-100" : "bg-white border-gray-300 text-gray-900"
+                }`}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className={`font-medium ${theme === "dark" ? "text-gray-200" : "text-gray-700"}`}>Upload Nota</label>
+            <label className={`inline-flex items-center px-2 py-1 rounded-lg cursor-pointer text-sm transition ${theme === "dark" ? "bg-gray-700 text-gray-200 hover:bg-gray-600" : "bg-gray-300 text-gray-700 hover:bg-gray-200"
+              }`}>
               Pilih File
               <input type="file" accept="image/*" onChange={handleNotaChange} className="hidden" />
             </label>
@@ -222,17 +241,16 @@ export default function TransactionForm({ onSuccess, onCancel }: TransactionProp
           onChange={(e) => { setDescription(e.target.value); if (error) setError(null); }}
           rows={3}
           placeholder="Tuliskan catatan transaksi..."
-          className={`w-full p-2 mt-1 rounded-lg border text-sm resize-none ${
-            theme === "dark" ? "bg-gray-800 border-gray-600 text-gray-100 placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-          }`}
+          className={`w-full p-2 mt-1 rounded-lg border text-sm resize-none ${theme === "dark" ? "bg-gray-800 border-gray-600 text-gray-100 placeholder-gray-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+            }`}
         />
       </div>
 
-      <div className="flex flex-col md:flex-row justify-end gap-2">
+      <div className="flex flex-col justify-end gap-2 md:flex-row">
         <button
           type="button"
           onClick={onCancel}
-          className="flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition"
+          className="flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium text-white transition bg-red-600 rounded-lg hover:bg-red-700"
         >
           <X className="w-4 h-4" /> Batal
         </button>
