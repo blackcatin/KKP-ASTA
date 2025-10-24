@@ -24,6 +24,16 @@ router.get('/arus-kas', async (req, res) => {
 	}
 });
 
+router.get('/realisasi-anggaran', async (req, res) => {
+	try {
+		const report = await ReportService.getBudget(req.query);
+		res.status(200).json(report);
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({message: 'Error server'});
+	}
+});
+
 router.get('/rekap', async (req, res) => {
 	try {
 		const labaRugi = await ReportService.getProfitAndLoss(req.query);

@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
 import { TrendingUp, DollarSign, Calendar } from "lucide-react";
-import { useTheme } from "../../context/ThemeContext"; 
+import { useTheme } from "../../context/ThemeContext";
 
-interface ReportData {
-    total_penjualan: number;
-    total_biaya: number;
-    laba_rugi: number;
+interface CashFlowData {
     total_kas_masuk: number;
     total_kas_keluar: number;
     arus_kas: number;
 }
+interface ReportData {
+    budget: { category_name: string; total_pengeluaran: number }[];
+    cash: CashFlowData[];
+}
 
 export default function ReportPage() {
-    const { theme } = useTheme(); 
+    const { theme } = useTheme();
     const [report, setReport] = useState<ReportData | null>(null);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -27,24 +28,31 @@ export default function ReportPage() {
     const fetchReport = async () => {
         setLoading(true);
         setError(null);
+
         try {
-            const [pnlResponse, cashResponse] = await Promise.all([
-                fetch(`${apiUrl}/reports/laba-rugi?start_date=${startDate}&end_date=${endDate}`),
+            const [budgetResponse, cashResponse] = await Promise.all([
+                fetch(`${apiUrl}/reports/realisasi-anggaran?start_date=${startDate}&end_date=${endDate}`),
                 fetch(`${apiUrl}/reports/arus-kas?start_date=${startDate}&end_date=${endDate}`)
             ]);
 
-            if (!pnlResponse.ok || !cashResponse.ok) throw new Error('Gagal memuat salah satu laporan');
+            if (!budgetResponse.ok || !cashResponse.ok) {
+                throw new Error('Gagal memuat laporan');
+            }
 
-            const pnlData = await pnlResponse.json();
+            const budgetData = await budgetResponse.json();
             const cashData = await cashResponse.json();
 
-            setReport({ ...pnlData, ...cashData });
+            setReport({ budget: budgetData, cash: cashData })
         } catch (error) {
-            if (error instanceof Error) setError(error.message || 'Server error');
+            if (error instanceof Error) setError(error.message || "Server error");
         } finally {
             setLoading(false);
         }
-    };
+    }
+
+    const cashSummary = report?.cash
+        ? (Array.isArray(report.cash) ? report.cash[0] : report.cash)
+        : { total_kas_masuk: 0, total_kas_keluar: 0, arus_kas: 0 }
 
     useEffect(() => {
         const today = new Date();
@@ -112,8 +120,8 @@ export default function ReportPage() {
                     onClick={fetchReport}
                     disabled={loading}
                     className={`px-5 py-2 text-sm font-semibold rounded-lg transition-colors duration-300
-                        ${theme === "dark" ? "bg-[var(--color-netral)] text-white hover:brightness-110 disabled:opacity-50" 
-                                        : "bg-[var(--color-secondary)] text-white hover:brightness-90 disabled:opacity-50"}`}
+                        ${theme === "dark" ? "bg-[var(--color-netral)] text-white hover:brightness-110 disabled:opacity-50"
+                            : "bg-[var(--color-secondary)] text-white hover:brightness-90 disabled:opacity-50"}`}
                 >
                     {loading ? 'Memuat...' : 'Tampilkan'}
                 </button>
@@ -135,49 +143,45 @@ export default function ReportPage() {
 
             {report && (
                 <div className="grid gap-8 md:grid-cols-2">
+
+                    {/* Kolom 1: Realisasi Pengeluaran */}
                     <div className={`p-6 transition-colors duration-300 rounded-xl border shadow-sm hover:shadow-md
                         ${theme === "dark" ? "bg-gray-800 border-gray-700 text-gray-200" : "bg-white border-gray-200 text-gray-900"}`}>
                         <div className="flex items-center gap-2 pb-2 mb-4 border-b">
                             <TrendingUp className="text-green-600" />
-                            <h3 className="text-xl font-semibold">Laba Rugi</h3>
+                            <h3 className="text-xl font-semibold">Realisasi Pengeluaran (Per Kategori)</h3>
                         </div>
                         <div className="space-y-2">
-                            <p className="flex justify-between">
-                                <span>Total Penjualan:</span>
-                                <span className="font-medium text-green-600">{formatRupiah(report.total_penjualan)}</span>
-                            </p>
-                            <p className="flex justify-between">
-                                <span>Total Biaya (HPP, Gaji, Operasional):</span>
-                                <span className="font-medium text-red-600">{formatRupiah(report.total_biaya)}</span>
-                            </p>
-                            <div className="flex justify-between pt-3 mt-4 font-semibold border-t">
-                                <span>Laba Bersih:</span>
-                                <span className={`text-lg ${report.laba_rugi >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                                    {formatRupiah(report.laba_rugi)}
-                                </span>
-                            </div>
+                            {/* PERBAIKAN: Gunakan report.budget (Array) */}
+                            {report.budget.map((item, index) => (
+                                <div key={index} className="flex justify-between pb-1 border-b border-dashed">
+                                    <span>{item.category_name}</span>
+                                    <span className="font-medium text-red-600">{formatRupiah(item.total_pengeluaran)}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
+                    {/* Kolom 2: Arus Kas */}
                     <div className={`p-6 transition-colors duration-300 rounded-xl border shadow-sm hover:shadow-md
                         ${theme === "dark" ? "bg-gray-800 border-gray-700 text-gray-200" : "bg-white border-gray-200 text-gray-900"}`}>
-                        <div className="flex items-center gap-2 pb-2 mb-4 border-b">
-                            <DollarSign className="text-yellow-600" />
-                            <h3 className="text-xl font-semibold">Arus Kas</h3>
-                        </div>
+                        {/* ... (Header Arus Kas) ... */}
                         <div className="space-y-2">
                             <p className="flex justify-between">
                                 <span>Kas Masuk (Pemasukan, Lain-Lain):</span>
-                                <span className="font-medium text-green-600">{formatRupiah(report.total_kas_masuk)}</span>
+                                {/* PERBAIKAN: Gunakan cashSummary */}
+                                <span className="font-medium text-green-600">{formatRupiah(cashSummary.total_kas_masuk)}</span>
                             </p>
                             <p className="flex justify-between">
                                 <span>Kas Keluar (Pembelian, Biaya, Gaji):</span>
-                                <span className="font-medium text-red-600">{formatRupiah(report.total_kas_keluar)}</span>
+                                {/* PERBAIKAN: Gunakan cashSummary */}
+                                <span className="font-medium text-red-600">{formatRupiah(cashSummary.total_kas_keluar)}</span>
                             </p>
                             <div className="flex justify-between pt-3 mt-4 font-semibold border-t">
                                 <span>Arus Kas Bersih:</span>
-                                <span className={`text-lg ${report.arus_kas >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                                    {formatRupiah(report.arus_kas)}
+                                {/* PERBAIKAN: Gunakan cashSummary */}
+                                <span className={`text-lg ${cashSummary.arus_kas >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                                    {formatRupiah(cashSummary.arus_kas)}
                                 </span>
                             </div>
                         </div>
