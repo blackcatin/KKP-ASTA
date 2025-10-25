@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import DCard from "../Dashboard/DCard";
 import ChartCard from "./ChartCard";
 import DonutChart from "./DonutChart";

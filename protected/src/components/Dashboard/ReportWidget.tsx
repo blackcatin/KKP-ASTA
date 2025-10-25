@@ -1,4 +1,3 @@
-import React from "react";
 import { ArrowUp, ArrowDown, Info } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 
