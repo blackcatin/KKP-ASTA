@@ -1,62 +1,74 @@
-// src/components/ReportWidget.tsx
-import { ArrowUp, ArrowDown, Info } from 'lucide-react';
+import React from "react";
+import { ArrowUp, ArrowDown, Info } from "lucide-react";
+import { useTheme } from "../../context/ThemeContext";
 
 interface ReportWidgetProps {
-    pnlData: { total_penjualan: number; total_biaya: number; laba_rugi: number; };
-    cashData: { total_kas_masuk: number; total_kas_keluar: number; arus_kas: number; };
-    timeframe: string;
+  pnlData: { total_penjualan: number; total_biaya: number; laba_rugi: number };
+  cashData: { total_kas_masuk: number; total_kas_keluar: number; arus_kas: number };
+  timeframe: string;
+  className?: string;
 }
 
 const formatRupiah = (value: number) =>
-    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
+  new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(value);
 
+export default function ReportWidget({ pnlData, cashData, timeframe, className }: ReportWidgetProps) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
-export default function ReportWidget({ pnlData, cashData, timeframe }: ReportWidgetProps) {
-    const isProfit = pnlData.laba_rugi >= 0;
-    const pnlAmount = formatRupiah(pnlData.laba_rugi);
-    const flowAmount = formatRupiah(cashData.arus_kas);
+  const isProfit = pnlData.laba_rugi >= 0;
+  const isPositiveFlow = cashData.arus_kas >= 0;
 
-    return (
-        <div className="h-full max-w-full p-4 bg-white shadow-sm rounded-xl md:p-6">
-            <div className="flex justify-between mb-5">
-                <div className="grid grid-cols-2 gap-4">
-                    {/* Statistik 1: LABA BERSIH */}
-                    <div>
-                        <h5 className="inline-flex items-center mb-2 font-normal leading-none text-gray-500">
-                            Laba Bersih ({timeframe})
-                            <Info size={14} className="ml-1 text-gray-400 cursor-pointer hover:text-gray-900" />
-                        </h5>
-                        <p className={`text-2xl leading-none font-bold ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
-                            {pnlAmount}
-                        </p>
-                    </div>
-                    {/* Statistik 2: ARUS KAS BERSIH */}
-                    <div>
-                        <h5 className="inline-flex items-center mb-2 font-normal leading-none text-gray-500">
-                            Arus Kas Bersih ({timeframe})
-                            <Info size={14} className="ml-1 text-gray-400 cursor-pointer hover:text-gray-900" />
-                        </h5>
-                        <p className={`text-2xl leading-none font-bold ${cashData.arus_kas >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
-                            {flowAmount}
-                        </p>
-                    </div>
-                </div>
-                {/* Dropdown Waktu (Diabaikan untuk React murni, gunakan filter dari parent) */}
-            </div>
+  const cardBg = isDark ? "bg-gray-900" : "bg-white";
+  const cardBorder = isDark ? "border-gray-800" : "border-gray-200";
+  const textPrimary = isDark ? "text-gray-100" : "text-gray-800";
+  const textSecondary = isDark ? "text-gray-400" : "text-gray-600";
+  const borderDivider = isDark ? "border-gray-700" : "border-gray-200";
+  const smallCardBg = isDark ? "bg-gray-800" : "bg-gray-50";
 
-            {/* Detail Tambahan di bagian bawah */}
-            <div className="grid grid-cols-2 items-center border-gray-200 border-t justify-between mt-2.5 pt-4">
-                <div className="pt-2">
-                    <p className="text-sm font-medium text-gray-500">Penjualan Kotor:</p>
-                    <p className="font-bold text-green-600 text-md">{formatRupiah(pnlData.total_penjualan)}</p>
-                </div>
-                <div className="pt-2">
-                    <p className="text-sm font-medium text-gray-500">Total Pengeluaran:</p>
-                    <p className="font-bold text-red-600 text-md">{formatRupiah(pnlData.total_biaya)}</p>
-                </div>
-            </div>
+  return (
+    <div
+      className={`p-6 rounded-2xl shadow-md border ${cardBorder} ${cardBg} transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl ${className ?? ""}`}
+    >
+      <div className="flex items-center justify-between mb-5">
+        <h2 className={`text-lg font-semibold ${textPrimary}`}>Ringkasan Laporan ({timeframe})</h2>
+        <Info size={18} className={`cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 ${textSecondary}`} />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-5">
+        <div className={`p-4 rounded-xl ${smallCardBg}`}>
+          <h5 className={`mb-2 text-sm font-medium ${textSecondary}`}>Laba Bersih</h5>
+          <div className="flex items-center gap-2">
+            <p className={`text-2xl font-bold ${isProfit ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>
+              {formatRupiah(pnlData.laba_rugi)}
+            </p>
+            {isProfit ? <ArrowUp className="text-green-500 dark:text-green-400" size={20} /> : <ArrowDown className="text-red-500 dark:text-red-400" size={20} />}
+          </div>
         </div>
-    );
-}
 
-// ... (KPICard component helpers) ...
+        <div className={`p-4 rounded-xl ${smallCardBg}`}>
+          <h5 className={`mb-2 text-sm font-medium ${textSecondary}`}>Arus Kas Bersih</h5>
+          <div className="flex items-center gap-2">
+            <p className={`text-2xl font-bold ${isPositiveFlow ? "text-blue-600 dark:text-blue-400" : "text-red-500 dark:text-red-400"}`}>
+              {formatRupiah(cashData.arus_kas)}
+            </p>
+            {isPositiveFlow ? <ArrowUp className="text-blue-500 dark:text-blue-400" size={20} /> : <ArrowDown className="text-red-500 dark:text-red-400" size={20} />}
+          </div>
+        </div>
+      </div>
+
+      <div className={`border-t my-4 ${borderDivider}`}></div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="space-y-1">
+          <p className={`text-sm font-medium ${textSecondary}`}>Penjualan Kotor:</p>
+          <p className="text-lg font-semibold text-green-600 dark:text-green-400">{formatRupiah(pnlData.total_penjualan)}</p>
+        </div>
+        <div className="space-y-1">
+          <p className={`text-sm font-medium ${textSecondary}`}>Total Pengeluaran:</p>
+          <p className="text-lg font-semibold text-red-600 dark:text-red-400">{formatRupiah(pnlData.total_biaya)}</p>
+        </div>
+      </div>
+    </div>
+  );
+}

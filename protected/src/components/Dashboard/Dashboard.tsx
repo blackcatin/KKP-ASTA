@@ -1,123 +1,181 @@
-import { useEffect, useState } from "react";
-import DCard from "./DCard";
-import RecentTransactionsCard from "./RecentTransactionCard";
+import React, { useEffect, useState } from "react";
+import DCard from "../Dashboard/DCard";
+import ChartCard from "./ChartCard";
+import DonutChart from "./DonutChart";
+import ColumnAreaChart from "./ColumnAreaChart";
+import RecentTransactionsCard from "../Dashboard/RecentTransactionCard";
+import ReportWidget from "../Dashboard/ReportWidget";
+import CriticalStockCard from "../Dashboard/CriticalStockCard"; // <-- import yang baru
+import api from "../../api";
 import { AlertTriangle, DollarSign, Package, TrendingUp } from "lucide-react";
+import { useTheme } from "../../context/ThemeContext";
 
-interface ReportData {
-    laba_rugi: number;
-    arus_kas: number;
-    total_kas_masuk: number;
-    total_biaya: number;
-}
+type ReportResp = {
+  laba_rugi?: number;
+  total_kas_masuk?: number;
+  monthly_revenue?: number[];
+};
 
-export default function Dashboard() {
+type Item = {
+  id: number;
+  name: string;
+  sku?: string;
+  current_stock: number;
+  min_stock?: number;
+  is_trackable?: boolean;
+};
 
-    const [report, setReport] = useState<ReportData | null>(null);
-    const [itemCount, setItemCount] = useState(0);
-    const [criticalStockCount, setCriticalStockCount] = useState(0);
-    const [loading, setLoading] = useState(true);
-    const apiUrl = import.meta.env.VITE_API_URL;
+export default function DashboardPage() {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
-    const formatRupiah = (value: number) =>
-        new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value);
+  const [report, setReport] = useState<ReportResp | null>(null);
+  const [items, setItems] = useState<Item[]>([]);
+  const [criticalItems, setCriticalItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    // Fungsi fetch utama
-    const fetchDashboardData = async () => {
-        setLoading(true);
-        try {
-            // 1. Ambil Laporan Keuangan (Arus Kas dan Laba Rugi Bulan Ini)
-            const pnlResponse = await fetch(`${apiUrl}/reports/laba-rugi`);
-            const cashResponse = await fetch(`${apiUrl}/reports/arus-kas`);
-            const itemResponse = await fetch(`${apiUrl}/items`);
+  const formatRupiah = (v = 0) =>
+    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(v);
 
-            const pnlData = await pnlResponse.json();
-            const cashData = await cashResponse.json();
-            const itemData = await itemResponse.json();
+  useEffect(() => {
+    let mounted = true;
 
-            setReport({ ...pnlData, ...cashData });
+    const load = async () => {
+      setLoading(true);
+      try {
+        const [rRes, itemsRes] = await Promise.all([
+          api.get("/reports/dashboard").then((r: any) => r.data).catch(() => null),
+          api.get("/items").then((r: any) => r.data).catch(() => []),
+        ]);
 
-            // 2. Hitung Stok Kritis (Contoh: stok di bawah 10)
-            const criticalItems = itemData.filter(item => item.current_stock < 10 && item.is_trackable);
-            setCriticalStockCount(criticalItems.length);
-            setItemCount(itemData.length);
-
-        } catch (error) {
-            console.error("Gagal memuat data dashboard:", error);
-        } finally {
-            setLoading(false);
+        let finalReport = rRes;
+        if (!finalReport) {
+          try {
+            const pnl = await api.get("/reports/laba-rugi").then((r: any) => r.data);
+            const cash = await api.get("/reports/arus-kas").then((r: any) => r.data);
+            finalReport = { ...pnl, ...cash };
+          } catch {
+            finalReport = null;
+          }
         }
+
+        if (!mounted) return;
+        setReport(finalReport);
+        setItems(itemsRes);
+
+        const crit = (itemsRes || []).filter(
+          (it: Item) => it.is_trackable !== false && (it.current_stock ?? 0) < (it.min_stock ?? 10)
+        );
+        setCriticalItems(crit);
+      } catch (err) {
+        console.error("Gagal load dashboard data:", err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
 
-    useEffect(() => {
-        fetchDashboardData();
-    }, []);
+    load();
+    return () => { mounted = false; };
+  }, []);
 
-    // Placeholder data jika loading
-    const defaultReport = report || { laba_rugi: 0, arus_kas: 0, total_kas_masuk: 0, total_biaya: 0 };
-    return (
-        <div>
-            <div className="p-4">
-                <h2 className="mb-8 text-3xl font-bold text-gray-800">Dashboard Utama</h2>
+  const safeReport = report ?? { laba_rugi: 0, total_kas_masuk: 0, monthly_revenue: [] };
 
+  return (
+    <div className="p-6">
+      <h2 className={`mb-8 text-3xl font-bold ${isDark ? "text-gray-100" : "text-gray-800"}`}>
+        Dashboard Koperasi KKP-ASTA
+      </h2>
 
-                <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
+        <DCard
+          title="Laba Bersih"
+          value={loading ? "Memuat..." : formatRupiah(safeReport.laba_rugi)}
+          color={safeReport.laba_rugi! >= 0 ? "bg-green-600" : "bg-red-600"}
+          icon={<TrendingUp />}
+          className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl"
+        />
+        <DCard
+          title="Total Kas Masuk"
+          value={loading ? "Memuat..." : formatRupiah(safeReport.total_kas_masuk)}
+          color="bg-blue-600"
+          icon={<DollarSign />}
+          className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl"
+        />
+        <DCard
+          title="Item Stok Kritis"
+          value={loading ? "Memuat..." : `${criticalItems.length} Item`}
+          color={criticalItems.length > 0 ? "bg-red-500" : "bg-yellow-500"}
+          icon={<AlertTriangle />}
+          className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl"
+        />
+        <DCard
+          title="Total Item Terdaftar"
+          value={loading ? "Memuat..." : `${items.length}`}
+          color="bg-indigo-500"
+          icon={<Package />}
+          className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl"
+        />
+      </div>
 
-                    {/* 1. Laba Bersih */}
-                    <DCard
-                        title="Laba Bersih"
-                        value={loading ? 'Memuat...' : formatRupiah(defaultReport.laba_rugi)}
-                        color={defaultReport.laba_rugi >= 0 ? 'bg-green-600' : 'bg-red-600'}
-                        icon={<TrendingUp />}
-                    />
+      <div className="grid grid-cols-1 gap-6 mb-8 lg:grid-cols-3">
+        <ChartCard
+          title="Overview Kategori"
+          subtitle="Distribusi pengeluaran & biaya"
+          className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl"
+        >
+          <DonutChart donutSeries={[55, 25, 20]} />
+        </ChartCard>
 
-                    {/* 2. Kas Masuk */}
-                    <DCard
-                        title="Total Kas Masuk"
-                        value={loading ? 'Memuat...' : formatRupiah(defaultReport.total_kas_masuk)}
-                        color="bg-blue-600"
-                        icon={<DollarSign />}
-                    />
+        <ChartCard
+          title="Revenue Updates"
+          subtitle="Pendapatan per bulan"
+          className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl"
+        >
+          <ColumnAreaChart
+            type="column"
+            columnSeries={
+              safeReport.monthly_revenue?.length
+                ? [{ name: "Pendapatan", data: safeReport.monthly_revenue.map((v) => Math.round(v / 1000)) }]
+                : undefined
+            }
+            height={200}
+          />
+        </ChartCard>
 
-                    {/* 3. Stok Kritis */}
-                    <DCard
-                        title="Item Stok Kritis"
-                        value={loading ? 'Memuat...' : `${criticalStockCount} Item`}
-                        color={criticalStockCount > 0 ? 'bg-red-500' : 'bg-yellow-500'}
-                        icon={<AlertTriangle />}
-                    />
+        <ChartCard
+          title="Aktivitas Mingguan"
+          subtitle="Ringkasan aktivitas harian"
+          className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl"
+        >
+          <ColumnAreaChart type="area" gridSeries={[31, 40, 28, 51, 42, 109, 100]} height={200} />
+        </ChartCard>
+      </div>
 
-                    {/* 4. Total Kategori */}
-                    <DCard
-                        title="Total Item Terdaftar"
-                        value={loading ? 'Memuat...' : `${itemCount}`}
-                        color="bg-indigo-500"
-                        icon={<Package />}
-                    />
-                </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="flex flex-col gap-6">
+          <ReportWidget
+            pnlData={{
+              total_penjualan: safeReport.monthly_revenue?.reduce((a, b) => a + b, 0) ?? 0,
+              total_biaya: 0,
+              laba_rugi: safeReport.laba_rugi ?? 0,
+            }}
+            cashData={{
+              total_kas_masuk: safeReport.total_kas_masuk ?? 0,
+              total_kas_keluar: 0,
+              arus_kas: safeReport.total_kas_masuk ?? 0,
+            }}
+            timeframe="Bulan Ini"
+            className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl"
+          />
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                    <div className="lg:col-span-2">
-                        {/* <ReportWidget
-
-                        /> */}
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-
-                    {/* Kolom Kiri: WIDGET TRANSAKSI BARU (2/3 Lebar) */}
-                    <div className="lg:col-span-2">
-                        <RecentTransactionsCard /> {/* Menggunakan komponen yang sudah dimodifikasi */}
-                    </div>
-
-                    {/* Kolom Kanan: WIDGET STOK KRITIS (1/3 Lebar) */}
-                    <div className="p-6 bg-white shadow-md lg:col-span-1 rounded-xl">
-                        <h3 className="pb-2 mb-4 text-xl font-semibold border-b">Peringatan Stok Rendah</h3>
-                        {/* Placeholder untuk list item dengan stok rendah */}
-                        <p className="text-gray-500">List stok kritis akan muncul di sini.</p>
-                    </div>
-                </div>
-            </div>
+          <CriticalStockCard
+            items={criticalItems}
+            className="transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl"
+          />
         </div>
-    )
-}   
+
+        <RecentTransactionsCard />
+      </div>
+    </div>
+  );
+}

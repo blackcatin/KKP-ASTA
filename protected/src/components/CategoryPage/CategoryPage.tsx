@@ -25,6 +25,8 @@ type SortOrder = "asc" | "desc";
 
 export default function CategoryPage() {
   const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   const [categoryList, setCategoryList] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,11 +57,16 @@ export default function CategoryPage() {
     }
   };
 
-  useEffect(() => { fetchCategories(); }, []);
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const handleSort = (key: SortKey) => {
     if (key === sortKey) setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    else { setSortKey(key); setSortOrder("asc"); }
+    else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
     setCurrentPage(1);
   };
 
@@ -102,12 +109,12 @@ export default function CategoryPage() {
   if (error) return <div className="text-red-500">Error: {error}</div>;
 
   return (
-    <div className={`min-h-full transition-colors duration-300 ${theme === "dark" ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"}`}>
-      <h2 className={`mb-6 text-2xl font-bold transition-colors duration-300 ${theme === "dark" ? "text-gray-100" : "text-gray-900"}`}>
+    <div className={`min-h-full transition-colors duration-300 ${isDark ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"}`}>
+      <h2 className={`mb-6 text-2xl font-bold transition-colors duration-300 ${isDark ? "text-gray-100" : "text-gray-900"}`}>
         Kelola Kategori
       </h2>
 
-      <div className={`p-5 rounded-lg shadow transition-colors duration-300 ${theme === "dark" ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"}`}>
+      <div className={`p-5 rounded-lg shadow transition-colors duration-300 ${isDark ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"}`}>
         <div className="flex flex-col items-center justify-between gap-4 mb-4 md:flex-row">
           <div className="flex items-center w-full gap-2 md:w-auto">
             <div className="relative w-full md:w-60">
@@ -116,21 +123,21 @@ export default function CategoryPage() {
                 type="text"
                 placeholder="Cari kategori..."
                 className={`w-full px-8 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]
-                  ${theme === "dark" ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400" : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500"}`}
+                  ${isDark ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400" : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500"}`}
                 value={searchTerm}
                 onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
               />
             </div>
 
-            <div className={`flex items-center gap-1 px-2 py-1 border rounded-lg text-sm ${theme === "dark" ? "border-gray-600 bg-gray-700 text-gray-100" : "border-gray-300 bg-gray-50 text-gray-700"}`}>
-              <ListFilter size={16} className={`${theme === "dark" ? "text-gray-300" : "text-gray-500"}`}/>
+            <div className={`flex items-center gap-1 px-2 py-1 border rounded-lg text-sm ${isDark ? "border-gray-600 bg-gray-700 text-gray-100" : "border-gray-300 bg-gray-50 text-gray-700"}`}>
+              <ListFilter size={16} className={`${isDark ? "text-gray-300" : "text-gray-500"}`}/>
               <select
                 value={entriesPerPage}
                 onChange={(e) => { setEntriesPerPage(Number(e.target.value)); setCurrentPage(1); }}
-                className={`bg-transparent border-none focus:outline-none cursor-pointer ${theme === "dark" ? "bg-gray-700 text-gray-100" : "bg-gray-50 text-gray-900"}`}
+                className={`bg-transparent border-none focus:outline-none cursor-pointer ${isDark ? "bg-gray-700 text-gray-100" : "bg-gray-50 text-gray-900"}`}
               >
                 {[5, 10, 20, 50].map(n => (
-                  <option key={n} value={n} className={theme === "dark" ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"}>{n}</option>
+                  <option key={n} value={n} className={isDark ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"}>{n}</option>
                 ))}
               </select>
             </div>
@@ -139,20 +146,20 @@ export default function CategoryPage() {
           <button
             onClick={() => setAddModal(true)}
             className="flex items-center w-full justify-center md:w-auto gap-2 px-3 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90 transition shadow-md"
-            style={{ backgroundColor: "var(--color-secondary)" }}
+            style={{ backgroundColor: isDark ? "var(--color-netral)" : "var(--color-secondary)" }}
           >
-            <Plus className="w-4 h-4"/> Tambah Kategori
+            <Plus className="w-4 h-4" /> Tambah Kategori
           </button>
         </div>
 
-        <div className={`relative overflow-x-auto border rounded-lg transition-colors duration-300 ${theme === "dark" ? "border-gray-700" : "border-gray-200"}`}>
-          <table className={`w-full text-sm text-left transition-colors duration-300 ${theme === "dark" ? "text-gray-200" : "text-gray-700"}`}>
-            <thead className={`uppercase transition-colors duration-300 ${theme === "dark" ? "bg-gray-700 text-gray-100" : "bg-gray-100 text-gray-700"}`}>
+        <div className={`relative overflow-x-auto border rounded-lg transition-colors duration-300 ${isDark ? "border-gray-700" : "border-gray-200"}`}>
+          <table className={`w-full text-sm text-left transition-colors duration-300 ${isDark ? "text-gray-200" : "text-gray-700"}`}>
+            <thead className={`uppercase transition-colors duration-300 ${isDark ? "bg-gray-700 text-gray-100" : "bg-gray-100 text-gray-700"}`}>
               <tr>
                 {["id", "name", "description"].map((key) => (
                   <th
                     key={key}
-                    className={`px-6 py-3 cursor-pointer select-none whitespace-nowrap transition-colors duration-200 ${theme === "dark" ? "hover:bg-gray-600" : "hover:bg-gray-200"}`}
+                    className={`px-6 py-3 cursor-pointer select-none whitespace-nowrap transition-colors duration-200 ${isDark ? "hover:bg-gray-600" : "hover:bg-gray-200"}`}
                     onClick={() => handleSort(key as SortKey)}
                   >
                     <div className="flex items-center gap-1">
@@ -170,7 +177,7 @@ export default function CategoryPage() {
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {paginatedCategories.length > 0 ? (
                 paginatedCategories.map(cat => (
-                  <tr key={cat.id} className={`transition ${theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}>
+                  <tr key={cat.id} className={`transition ${isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}>
                     <td className="px-6 py-3 whitespace-nowrap">{cat.id}</td>
                     <td className="px-6 py-3 whitespace-nowrap">{cat.name}</td>
                     <td className="px-6 py-3">{cat.description}</td>
@@ -207,7 +214,7 @@ export default function CategoryPage() {
       </div>
 
       <Modal isOpen={addModal} onClose={() => setAddModal(false)} title="Tambah Kategori">
-        <CategoryForm onSuccess={() => { setAddModal(false); fetchCategories(); } } onCancel={() => setAddModal(false)} currentCat={null} />
+        <CategoryForm onSuccess={() => { setAddModal(false); fetchCategories(); }} onCancel={() => setAddModal(false)} currentCat={null} />
       </Modal>
 
       <Modal isOpen={editModal} onClose={() => setEditModal(false)} title={`Edit: ${currentCat?.name}`}>

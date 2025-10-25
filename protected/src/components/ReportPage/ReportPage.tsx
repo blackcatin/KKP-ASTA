@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { TrendingUp, DollarSign, Calendar } from "lucide-react";
+import { TrendingUp, Calendar } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 
 interface CashFlowData {
@@ -179,7 +179,6 @@ export default function ReportPage() {
                             </p>
                             <div className="flex justify-between pt-3 mt-4 font-semibold border-t">
                                 <span>Arus Kas Bersih:</span>
-                                {/* PERBAIKAN: Gunakan cashSummary */}
                                 <span className={`text-lg ${cashSummary.arus_kas >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                                     {formatRupiah(cashSummary.arus_kas)}
                                 </span>
