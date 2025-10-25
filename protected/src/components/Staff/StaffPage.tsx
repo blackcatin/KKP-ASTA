@@ -94,18 +94,18 @@ export default function StaffPage() {
     currentPage * entriesPerPage
   );
 
-    const SortIcon = ({ column }: { column: SortKey }) => (
-      <ArrowUpDown
-        size={16}
-        className={`inline-block ml-1 transition-transform ${
-          sortKey === column
-            ? sortOrder === "asc"
-              ? "rotate-180 text-[var(--color-secondary)]"
-              : "text-[var(--color-secondary)]"
-            : "text-gray-400 dark:text-gray-500"
-        }`}
-      />
-    );
+  const SortIcon = ({ column }: { column: SortKey }) => (
+    <ArrowUpDown
+      size={16}
+      className={`inline-block ml-1 transition-transform ${
+        sortKey === column
+          ? sortOrder === "asc"
+            ? "rotate-180 text-[var(--color-secondary)]"
+            : "text-[var(--color-secondary)]"
+          : "text-gray-400 dark:text-gray-500"
+      }`}
+    />
+  );
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500">Error: {error}</div>;
@@ -116,11 +116,7 @@ export default function StaffPage() {
         theme === "dark" ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"
       }`}
     >
-      <h2
-        className={`mb-6 text-2xl font-bold transition-colors duration-300 ${
-          theme === "dark" ? "text-gray-100" : "text-gray-900"
-        }`}
-      >
+      <h2 className={`mb-6 text-2xl font-bold transition-colors duration-300`}>
         Kelola Akun
       </h2>
 
@@ -162,7 +158,7 @@ export default function StaffPage() {
                   setCurrentPage(1);
                 }}
                 className={`bg-transparent border-none focus:outline-none cursor-pointer ${
-                  theme === "dark" ? "bg-gray-700 text-gray-100" : "bg-gray-50 text-gray-900"
+                  theme === "dark" ? "text-gray-100" : "text-gray-900"
                 }`}
               >
                 {[5, 10, 20, 50].map((n) => (
@@ -176,50 +172,51 @@ export default function StaffPage() {
 
           <button
             onClick={() => setAddModal(true)}
-            className={`flex items-center w-full justify-center md:w-auto gap-2 px-3 py-2 text-sm font-medium text-white rounded-lg shadow-md transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-1
-              ${theme === "dark" 
-                ? "bg-[var(--color-netral)] hover:bg-[var(--color-netral)/90] focus:ring-[var(--color-netral)]" 
-                : "bg-[var(--color-secondary)] hover:bg-[var(--color-secondary)/90] focus:ring-[var(--color-secondary)]"
-              }`}
+            className={`
+              flex items-center w-full justify-center md:w-auto gap-2 px-3 py-2 text-sm font-medium text-white rounded-lg shadow-md transition
+              hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-1
+              ${theme === "dark" ? "bg-[var(--color-netral)] focus:ring-[var(--color-netral)]" : "bg-[var(--color-secondary)] focus:ring-[var(--color-secondary)]"}
+            `}
           >
-            <Plus className="w-4 h-4" /> Tambah Akun
+            <Plus className="w-4 h-4" /> Tambah Staff
           </button>
-
         </div>
 
         <div
-          className={`relative overflow-x-auto border rounded-lg transition-colors duration-300 
-            ${theme === "dark" ? "border-gray-700" : "border-gray-200"}`}
-        >
-          <table
-            className={`w-full text-sm text-left transition-colors duration-300 
-              ${theme === "dark" ? "text-gray-200" : "text-gray-700"}`}
-          >
-        <thead
-          className={`uppercase transition-colors duration-300 ${
-            theme === "dark" ? "bg-gray-700 text-gray-100" : "bg-gray-100 text-gray-700"
+          className={`relative overflow-x-auto border rounded-lg transition-colors duration-300 ${
+            theme === "dark" ? "border-gray-700" : "border-gray-200"
           }`}
         >
-          <tr>
-            {["id", "full_name", "email", "role"].map((key) => (
-              <th
-                key={key}
-                className={`px-6 py-3 cursor-pointer select-none whitespace-nowrap transition-colors duration-200
-                  ${theme === "dark" ? "hover:bg-gray-600" : "hover:bg-gray-200"}`}
-                onClick={() => handleSort(key as SortKey)}
-              >
-                <div className="flex items-center gap-1">
-                  {key === "id" && "ID"}
-                  {key === "full_name" && "Nama"}
-                  {key === "email" && "Email"}
-                  {key === "role" && "Role"}
-                  <SortIcon column={key as SortKey} />
-                </div>
-              </th>
-            ))}
-            <th className={`px-6 py-3 uppercase whitespace-nowrap ${theme === "dark" ? "" : ""}`}>Aksi</th>
-          </tr>
-        </thead>
+          <table
+            className={`w-full text-sm text-left transition-colors duration-300 ${
+              theme === "dark" ? "text-gray-200" : "text-gray-700"
+            }`}
+          >
+            <thead
+              className={`uppercase transition-colors duration-300 ${
+                theme === "dark" ? "bg-gray-700 text-gray-100" : "bg-gray-100 text-gray-700"
+              }`}
+            >
+              <tr>
+                {["id", "full_name", "email", "role"].map((key) => (
+                  <th
+                    key={key}
+                    className={`px-6 py-3 cursor-pointer select-none whitespace-nowrap transition-colors duration-200
+                      ${theme === "dark" ? "hover:bg-gray-600" : "hover:bg-gray-200"}`}
+                    onClick={() => handleSort(key as SortKey)}
+                  >
+                    <div className="flex items-center gap-1">
+                      {key === "id" && "ID"}
+                      {key === "full_name" && "Nama"}
+                      {key === "email" && "Email"}
+                      {key === "role" && "Role"}
+                      <SortIcon column={key as SortKey} />
+                    </div>
+                  </th>
+                ))}
+                <th className="px-6 py-3 uppercase whitespace-nowrap">Aksi</th>
+              </tr>
+            </thead>
 
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {paginatedStaff.length > 0 ? (
@@ -227,9 +224,7 @@ export default function StaffPage() {
                   <tr
                     key={user.id}
                     className={`transition ${
-                      theme === "dark"
-                        ? "hover:bg-gray-700"
-                        : "hover:bg-gray-100"
+                      theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100"
                     }`}
                   >
                     <td className="px-6 py-3 whitespace-nowrap">{user.id}</td>
@@ -262,10 +257,7 @@ export default function StaffPage() {
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-4 text-center text-gray-500 dark:text-gray-400"
-                  >
+                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                     Tidak ada data
                   </td>
                 </tr>
@@ -282,9 +274,7 @@ export default function StaffPage() {
           >
             <ChevronLeft size={18} />
           </button>
-          <span>
-            {currentPage}/{totalPages || 1}
-          </span>
+          <span>{currentPage}/{totalPages || 1}</span>
           <button
             disabled={currentPage === totalPages || totalPages === 0}
             onClick={() => setCurrentPage((p) => p + 1)}

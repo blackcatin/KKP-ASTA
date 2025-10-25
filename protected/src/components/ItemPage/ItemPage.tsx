@@ -218,14 +218,20 @@ export default function ItemPage() {
           </div>
 
           <button
-            onClick={openAddModal}
-            className={`flex items-center w-full justify-center md:w-auto gap-2 px-3 py-2 text-sm font-medium text-white rounded-lg shadow-md transition
-              hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-1
-              ${theme === "dark" ? "bg-[var(--color-netral)] hover:bg-[var(--color-netral)/90] focus:ring-[var(--color-netral)]" 
-                                  : "bg-[var(--color-secondary)] hover:bg-[var(--color-secondary)/90] focus:ring-[var(--color-secondary)]"}`}
-          >
-            <Plus className="w-4 h-4" /> Tambah Item
-          </button>
+          onClick={openAddModal}
+          className={`
+            flex items-center w-full justify-center md:w-auto gap-2 px-3 py-2 text-sm font-medium text-white rounded-lg shadow-md transition
+            hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-1
+            ${theme === "dark" 
+              ? "bg-[var(--color-netral)] focus:ring-[var(--color-netral)]" 
+              : "bg-[var(--color-secondary)] focus:ring-[var(--color-secondary)]"
+            }
+          `}
+        >
+          <Plus className="w-4 h-4" /> Tambah Item
+        </button>
+
+
         </div>
 
 
